@@ -7,6 +7,8 @@ use Illuminate\Support\Carbon;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Validator;
 
 class PlansController extends Controller
 {
@@ -29,14 +31,27 @@ class PlansController extends Controller
     {
         try
         {
-            $request->validate([
+            $rules = [
                 'name' => 'required',
                 'theme' => 'required',
                 'frequency' => 'required',
                 'startDate' => 'required|date',
                 'endDate' => 'required|date',
                 'userId' => 'required',
-            ]);
+            ];
+            $validator = Validator::make($request->all(), $rules);
+            if ($validator->fails())
+            {
+                $errors = Collection::make();
+                foreach ($validator->errors()->messages() as $key => $messages)
+                {
+                    $field = ucfirst($key);
+                    $message = implode(', ', $messages);
+                    $error = "{$field}: {$message}";
+                    $errors->push($error);
+                }
+                throw new Exception($errors->implode('<br>'));
+            }
             Plan::query()->create([
                 'name' => $request->get('name'),
                 'theme' => $request->get('theme'),
@@ -59,7 +74,7 @@ class PlansController extends Controller
     {
         try
         {
-            $request->validate([
+            $rules = [
                 'id' => 'required',
                 'name' => 'required',
                 'theme' => 'required',
@@ -67,7 +82,20 @@ class PlansController extends Controller
                 'startDate' => 'required|date',
                 'endDate' => 'required|date',
                 'userId' => 'required',
-            ]);
+            ];
+            $validator = Validator::make($request->all(), $rules);
+            if ($validator->fails())
+            {
+                $errors = Collection::make();
+                foreach ($validator->errors()->messages() as $key => $messages)
+                {
+                    $field = ucfirst($key);
+                    $message = implode(', ', $messages);
+                    $error = "{$field}: {$message}";
+                    $errors->push($error);
+                }
+                throw new Exception($errors->implode('<br>'));
+            }
             $id = $request->get('id');
             $plan = Plan::query()->find($id);
             if (!$plan)

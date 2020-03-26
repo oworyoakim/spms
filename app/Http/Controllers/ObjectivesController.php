@@ -7,6 +7,8 @@ use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Validator;
 
 class ObjectivesController extends Controller
 {
@@ -35,13 +37,26 @@ class ObjectivesController extends Controller
     {
         try
         {
-            $request->validate([
+            $rules = [
                 'name' => 'required',
                 'dueDate' => 'required|date',
                 'rank' => 'required',
                 'planId' => 'required',
                 'userId' => 'required',
-            ]);
+            ];
+            $validator = Validator::make($request->all(), $rules);
+            if ($validator->fails())
+            {
+                $errors = Collection::make();
+                foreach ($validator->errors()->messages() as $key => $messages)
+                {
+                    $field = ucfirst($key);
+                    $message = implode(', ', $messages);
+                    $error = "{$field}: {$message}";
+                    $errors->push($error);
+                }
+                throw new Exception($errors->implode('<br>'));
+            }
             Objective::query()->create([
                 'name' => $request->get('name'),
                 'due_date' => Carbon::parse($request->get('dueDate')),
@@ -61,13 +76,26 @@ class ObjectivesController extends Controller
     {
         try
         {
-            $request->validate([
+            $rules = [
                 'id' => 'required',
                 'name' => 'required',
                 'dueDate' => 'required|date',
                 'rank' => 'required',
                 'userId' => 'required',
-            ]);
+            ];
+            $validator = Validator::make($request->all(), $rules);
+            if ($validator->fails())
+            {
+                $errors = Collection::make();
+                foreach ($validator->errors()->messages() as $key => $messages)
+                {
+                    $field = ucfirst($key);
+                    $message = implode(', ', $messages);
+                    $error = "{$field}: {$message}";
+                    $errors->push($error);
+                }
+                throw new Exception($errors->implode('<br>'));
+            }
             $id = $request->get('id');
             $objective = Objective::query()->find($id);
             if (!$objective)

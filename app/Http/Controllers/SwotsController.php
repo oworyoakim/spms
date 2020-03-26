@@ -13,17 +13,17 @@ class SwotsController extends Controller
     {
         try
         {
+            $planId = $request->get('planId');
+            if (!$planId)
+            {
+                throw new Exception("Strategic plan id required!");
+            }
             $builder = Swot::query();
+            $builder->where('plan_id', $planId);
             $categoryId = $request->get('categoryId');
             if ($categoryId)
             {
                 $builder->where('category_id', $categoryId);
-            }
-
-            $planId = $request->get('planId');
-            if ($planId)
-            {
-                $builder->where('plan_id', $planId);
             }
 
             $type = $request->get('type');
@@ -46,7 +46,7 @@ class SwotsController extends Controller
     {
         try
         {
-            $request->validate([
+            $this->validate($request,[
                 'name' => 'required',
                 'type' => 'required',
                 'planId' => 'required',
@@ -72,7 +72,7 @@ class SwotsController extends Controller
     {
         try
         {
-            $request->validate([
+            $this->validate($request,[
                 'id' => 'required',
                 'name' => 'required',
                 'type' => 'required',

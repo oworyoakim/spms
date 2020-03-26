@@ -6,11 +6,7 @@ use Illuminate\Http\Request;
 
 class HomeController extends Controller
 {
-    public function spms (Request $request) {
-        return view('spms.dashboard');
-    }
+    public function index(Request $request){
 
-    public function plans (Request $request) {
-        return view('spms.views.plans');
     }
 }

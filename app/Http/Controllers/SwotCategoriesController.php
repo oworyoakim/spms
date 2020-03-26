@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Swot;
 use App\Models\SwotCategory;
 use Exception;
 use Illuminate\Http\Request;
@@ -29,7 +28,7 @@ class SwotCategoriesController extends Controller
     {
         try
         {
-            $request->validate([
+            $this->validate($request,[
                 'name' => 'required',
                 'userId' => 'required',
             ]);
@@ -49,7 +48,7 @@ class SwotCategoriesController extends Controller
     {
         try
         {
-            $request->validate([
+            $this->validate($request,[
                 'id' => 'required',
                 'name' => 'required',
                 'userId' => 'required',

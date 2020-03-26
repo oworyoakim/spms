@@ -49,6 +49,12 @@ $router->group(['prefix' => 'v1'], function () use ($router) {
         $router->put('', 'SwotsController@update');
     });
 
+    $router->group(['prefix' => 'swot-categories'], function () use ($router) {
+        $router->get('', 'SwotCategoriesController@index');
+        $router->post('', 'SwotCategoriesController@store');
+        $router->put('', 'SwotCategoriesController@update');
+    });
+
     $router->group(['prefix' => 'outputs'], function () use ($router) {
         $router->get('', 'OutputsController@index');
         $router->post('', 'OutputsController@store');
