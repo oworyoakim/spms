@@ -39,19 +39,7 @@ class PlansController extends Controller
                 'endDate' => 'required|date',
                 'userId' => 'required',
             ];
-            $validator = Validator::make($request->all(), $rules);
-            if ($validator->fails())
-            {
-                $errors = Collection::make();
-                foreach ($validator->errors()->messages() as $key => $messages)
-                {
-                    $field = ucfirst($key);
-                    $message = implode(', ', $messages);
-                    $error = "{$field}: {$message}";
-                    $errors->push($error);
-                }
-                throw new Exception($errors->implode('<br>'));
-            }
+            $this->validateData($request->all(), $rules);
             Plan::query()->create([
                 'name' => $request->get('name'),
                 'theme' => $request->get('theme'),
@@ -83,19 +71,7 @@ class PlansController extends Controller
                 'endDate' => 'required|date',
                 'userId' => 'required',
             ];
-            $validator = Validator::make($request->all(), $rules);
-            if ($validator->fails())
-            {
-                $errors = Collection::make();
-                foreach ($validator->errors()->messages() as $key => $messages)
-                {
-                    $field = ucfirst($key);
-                    $message = implode(', ', $messages);
-                    $error = "{$field}: {$message}";
-                    $errors->push($error);
-                }
-                throw new Exception($errors->implode('<br>'));
-            }
+            $this->validateData($request->all(), $rules);
             $id = $request->get('id');
             $plan = Plan::query()->find($id);
             if (!$plan)

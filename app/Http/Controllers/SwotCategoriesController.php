@@ -28,10 +28,11 @@ class SwotCategoriesController extends Controller
     {
         try
         {
-            $this->validate($request,[
+            $rules = [
                 'name' => 'required',
                 'userId' => 'required',
-            ]);
+            ];
+            $this->validateData($request->all(), $rules);
             SwotCategory::query()->create([
                 'name' => $request->get('name'),
                 'created_by' => $request->get('userId'),
@@ -48,11 +49,12 @@ class SwotCategoriesController extends Controller
     {
         try
         {
-            $this->validate($request,[
+            $rules = [
                 'id' => 'required',
                 'name' => 'required',
                 'userId' => 'required',
-            ]);
+            ];
+            $this->validateData($request->all(), $rules);
             $id = $request->get('id');
             $swotCategory = SwotCategory::query()->find($id);
             if (!$swotCategory)

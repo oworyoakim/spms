@@ -44,9 +44,11 @@ class OutputIndicator extends Model
         $indicator->name = $this->name;
         $indicator->description = $this->description;
         $indicator->unit = $this->unit;
-        $indicator->milestones = $this->milestones()->get()->map(function (OutputIndicatorMilestone $milestone) {
-            return $milestone->getDetails();
-        });
+        $indicator->milestones = $this->milestones()
+                                      ->get()
+                                      ->map(function (OutputIndicatorMilestone $milestone) {
+                                          return $milestone->getDetails();
+                                      });
         $indicator->createdBy = $this->created_by;
         $indicator->createdAt = $this->created_at->toDateTimeString();
         $indicator->updatedBy = $this->updated_by;

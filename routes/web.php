@@ -35,6 +35,7 @@ $router->group(['prefix' => 'v1'], function () use ($router) {
         $router->get('', 'ObjectivesController@index');
         $router->post('', 'ObjectivesController@store');
         $router->put('', 'ObjectivesController@update');
+        $router->get('show', 'ObjectivesController@show');
     });
 
     $router->group(['prefix' => 'interventions'], function () use ($router) {

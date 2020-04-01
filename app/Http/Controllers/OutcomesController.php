@@ -33,11 +33,12 @@ class OutcomesController extends Controller
     {
         try
         {
-            $request->validate([
+            $rules = [
                 'name' => 'required',
                 'keyResultAreaId' => 'required',
                 'userId' => 'required',
-            ]);
+            ];
+            $this->validateData($request->all(), $rules);
             Outcome::query()->create([
                 'name' => $request->get('name'),
                 'key_result_area_id' => $request->get('keyResultAreaId'),
@@ -55,11 +56,12 @@ class OutcomesController extends Controller
     {
         try
         {
-            $request->validate([
+            $rules = [
                 'id' => 'required',
                 'name' => 'required',
                 'keyResultAreaId' => 'required',
-            ]);
+            ];
+            $this->validateData($request->all(), $rules);
             $id = $request->get('id');
             $outcome = Outcome::query()->find($id);
             if (!$outcome)

@@ -40,13 +40,14 @@ class TasksController extends Controller
     {
         try
         {
-            $request->validate([
+            $rules = [
                 'title' => 'required',
                 'start_date' => 'required|date',
                 'due_date' => 'required|date',
                 'activityId' => 'required',
                 'userId' => 'required',
-            ]);
+            ];
+            $this->validateData($request->all(), $rules);
             Task::query()->create([
                 'title' => $request->get('title'),
                 'start_date' => Carbon::parse($request->get('start_date')),
@@ -66,14 +67,15 @@ class TasksController extends Controller
     {
         try
         {
-            $request->validate([
+            $rules = [
                 'id' => 'required',
                 'title' => 'required',
                 'start_date' => 'required|date',
                 'due_date' => 'required|date',
                 'activityId' => 'required',
                 'userId' => 'required',
-            ]);
+            ];
+            $this->validateData($request->all(), $rules);
             $id = $request->get('id');
             $task = Task::query()->find($id);
             if (!$task)

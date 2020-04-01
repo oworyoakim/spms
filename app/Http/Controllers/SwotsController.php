@@ -3,9 +3,12 @@
 namespace App\Http\Controllers;
 
 use App\Models\Swot;
+use App\Models\SwotCategory;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Validator;
 
 class SwotsController extends Controller
 {
@@ -20,6 +23,57 @@ class SwotsController extends Controller
             }
             $builder = Swot::query();
             $builder->where('plan_id', $planId);
+            $swots = $builder->get()->map(function (Swot $swot) {
+                return $swot->getDetails();
+            });
+            $data = [];
+            $data[Swot::TYPE_STRENGTHS] = [];
+            $data[Swot::TYPE_WEAKNESSES] = [];
+            $data[Swot::TYPE_OPPORTUNITIES] = [];
+            $data[Swot::TYPE_THREATS] = [];
+
+            foreach (SwotCategory::all() as $category){
+                // STRENGTHS
+                $strengths = $swots->filter(function ($swot) use ($category){
+                    return $swot->type == Swot::TYPE_STRENGTHS && $swot->categoryId == $category->id;
+                });
+                $swotCategory = $category->getDetails();
+                $swotCategory->swots = $strengths;
+                if(count($swotCategory->swots)){
+                    $data[Swot::TYPE_STRENGTHS][] = $swotCategory;
+                }
+
+                // WEAKNESSES
+                $weaknesses = $swots->filter(function ($swot) use ($category){
+                    return $swot->type == Swot::TYPE_WEAKNESSES && $swot->categoryId == $category->id;
+                });
+                $swotCategory = $category->getDetails();
+                $swotCategory->swots = $weaknesses;
+                if(count($swotCategory->swots)){
+                    $data[Swot::TYPE_WEAKNESSES][] = $swotCategory;
+                }
+
+                // OPPORTUNITIES
+                $opportunities = $swots->filter(function ($swot) use ($category){
+                    return $swot->type == Swot::TYPE_OPPORTUNITIES && $swot->categoryId == $category->id;
+                });
+                $swotCategory = $category->getDetails();
+                $swotCategory->swots = $opportunities;
+                if(count($swotCategory->swots)){
+                    $data[Swot::TYPE_WEAKNESSES][] = $swotCategory;
+                }
+
+                // THREATS
+                $threats = $swots->filter(function ($swot) use ($category){
+                    return $swot->type == Swot::TYPE_OPPORTUNITIES && $swot->categoryId == $category->id;
+                });
+                $swotCategory = $category->getDetails();
+                $swotCategory->swots = $threats;
+                if(count($swotCategory->swots)){
+                    $data[Swot::TYPE_WEAKNESSES][] = $swotCategory;
+                }
+            }
+            /*
             $categoryId = $request->get('categoryId');
             if ($categoryId)
             {
@@ -32,10 +86,18 @@ class SwotsController extends Controller
                 $builder->where('type', $type);
             }
 
-            $swots = $builder->get()->map(function (Swot $swot) {
-                return $swot->getDetails();
-            });
-            return response()->json($swots);
+            $swots = $builder->get()
+                             ->map(function (Swot $swot) {
+                                 return $swot->getDetails();
+                             })
+                             ->groupBy('type')
+                             ->map(function (Collection $swots) {
+                                 return $swots->groupBy('categoryId')->map(function (Swot $item){
+
+                                 });
+                             });
+            */
+            return response()->json($data);
         } catch (Exception $ex)
         {
             return response()->json($ex->getMessage(), Response::HTTP_FORBIDDEN);
@@ -46,13 +108,14 @@ class SwotsController extends Controller
     {
         try
         {
-            $this->validate($request,[
+            $rules = [
                 'name' => 'required',
                 'type' => 'required',
                 'planId' => 'required',
                 'categoryId' => 'required',
                 'userId' => 'required',
-            ]);
+            ];
+            $this->validateData($request->all(), $rules);
             Swot::query()->create([
                 'name' => $request->get('name'),
                 'plan_id' => $request->get('planId'),
@@ -72,13 +135,14 @@ class SwotsController extends Controller
     {
         try
         {
-            $this->validate($request,[
+            $rules = [
                 'id' => 'required',
                 'name' => 'required',
                 'type' => 'required',
                 'categoryId' => 'required',
                 'userId' => 'required',
-            ]);
+            ];
+            $this->validateData($request->all(), $rules);
             $id = $request->get('id');
             $swot = Swot::query()->find($id);
             if (!$swot)

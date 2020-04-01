@@ -35,13 +35,14 @@ class KeyResultAreaController extends Controller
     {
         try
         {
-            $request->validate([
+            $rules = [
                 'name' => 'required',
                 'dueDate' => 'required|date',
                 'rank' => 'required',
                 'planId' => 'required',
                 'userId' => 'required',
-            ]);
+            ];
+            $this->validateData($request->all(), $rules);
             KeyResultArea::query()->create([
                 'name' => $request->get('name'),
                 'due_date' => Carbon::parse($request->get('dueDate')),
@@ -61,13 +62,14 @@ class KeyResultAreaController extends Controller
     {
         try
         {
-            $request->validate([
+            $rules = [
                 'id' => 'required',
                 'name' => 'required',
                 'dueDate' => 'required|date',
                 'rank' => 'required',
                 'userId' => 'required',
-            ]);
+            ];
+            $this->validateData($request->all(), $rules);
             $id = $request->get('id');
             $keyResultArea = KeyResultArea::query()->find($id);
             if (!$keyResultArea)

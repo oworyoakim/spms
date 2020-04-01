@@ -40,9 +40,11 @@ class Output extends Model
         $output->name = $this->name;
         $output->description = $this->description;
 
-        $output->indicators = $this->indicators()->get()->map(function (OutputIndicator $indicator) {
-            return $indicator->getDetails();
-        });
+        $output->indicators = $this->indicators()
+                                   ->get()
+                                   ->map(function (OutputIndicator $indicator) {
+                                       return $indicator->getDetails();
+                                   });
 
         $output->createdBy = $this->created_by;
         $output->updatedBy = $this->updated_by;

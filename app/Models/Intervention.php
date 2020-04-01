@@ -48,6 +48,12 @@ class Intervention extends Model
         }
         $intervention->createdAt = $this->created_at->toDateTimeString();
         $intervention->updatedAt = $this->updated_at->toDateTimeString();
+
+        $intervention->outputs = $this->outputs()
+                                      ->get()
+                                      ->map(function (Output $output) {
+                                          return $output->getDetails();
+                                      });
         return $intervention;
     }
 }

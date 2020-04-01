@@ -33,12 +33,13 @@ class OutputIndicatorsController extends Controller
     {
         try
         {
-            $request->validate([
+            $rules = [
                 'name' => 'required',
                 'outputId' => 'required',
                 'unit' => 'required',
                 'userId' => 'required',
-            ]);
+            ];
+            $this->validateData($request->all(), $rules);
             OutputIndicator::query()->create([
                 'name' => $request->get('name'),
                 'output_id' => $request->get('outputId'),
@@ -57,13 +58,14 @@ class OutputIndicatorsController extends Controller
     {
         try
         {
-            $request->validate([
+            $rules = [
                 'id' => 'required',
                 'name' => 'required',
                 'outputId' => 'required',
                 'unit' => 'required',
                 'userId' => 'required',
-            ]);
+            ];
+            $this->validateData($request->all(), $rules);
             $id = $request->get('id');
             $outputIndicator = OutputIndicator::query()->find($id);
             if (!$outputIndicator)

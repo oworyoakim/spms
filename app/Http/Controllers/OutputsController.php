@@ -34,11 +34,12 @@ class OutputsController extends Controller
     {
         try
         {
-            $request->validate([
+            $rules = [
                 'name' => 'required',
                 'interventionId' => 'required',
                 'userId' => 'required',
-            ]);
+            ];
+            $this->validateData($request->all(), $rules);
             Output::query()->create([
                 'name' => $request->get('name'),
                 'intervention_id' => $request->get('interventionId'),
@@ -56,11 +57,12 @@ class OutputsController extends Controller
     {
         try
         {
-            $request->validate([
+            $rules = [
                 'id' => 'required',
                 'name' => 'required',
                 'interventionId' => 'required',
-            ]);
+            ];
+            $this->validateData($request->all(), $rules);
             $id = $request->get('id');
             $output = Output::query()->find($id);
             if (!$output)

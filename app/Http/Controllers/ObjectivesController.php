@@ -2,13 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Intervention;
 use App\Models\Objective;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Carbon;
-use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\Validator;
 
 class ObjectivesController extends Controller
 {
@@ -44,19 +43,7 @@ class ObjectivesController extends Controller
                 'planId' => 'required',
                 'userId' => 'required',
             ];
-            $validator = Validator::make($request->all(), $rules);
-            if ($validator->fails())
-            {
-                $errors = Collection::make();
-                foreach ($validator->errors()->messages() as $key => $messages)
-                {
-                    $field = ucfirst($key);
-                    $message = implode(', ', $messages);
-                    $error = "{$field}: {$message}";
-                    $errors->push($error);
-                }
-                throw new Exception($errors->implode('<br>'));
-            }
+            $this->validateData($request->all(), $rules);
             Objective::query()->create([
                 'name' => $request->get('name'),
                 'due_date' => Carbon::parse($request->get('dueDate')),
@@ -83,19 +70,7 @@ class ObjectivesController extends Controller
                 'rank' => 'required',
                 'userId' => 'required',
             ];
-            $validator = Validator::make($request->all(), $rules);
-            if ($validator->fails())
-            {
-                $errors = Collection::make();
-                foreach ($validator->errors()->messages() as $key => $messages)
-                {
-                    $field = ucfirst($key);
-                    $message = implode(', ', $messages);
-                    $error = "{$field}: {$message}";
-                    $errors->push($error);
-                }
-                throw new Exception($errors->implode('<br>'));
-            }
+            $this->validateData($request->all(), $rules);
             $id = $request->get('id');
             $objective = Objective::query()->find($id);
             if (!$objective)
@@ -110,6 +85,34 @@ class ObjectivesController extends Controller
                 'updated_by' => $request->get('userId'),
             ]);
             return response()->json("Strategic objective updated!");
+        } catch (Exception $ex)
+        {
+            return response()->json($ex->getMessage(), Response::HTTP_FORBIDDEN);
+        }
+    }
+
+    public function show(Request $request)
+    {
+        try
+        {
+            $builder = Objective::query();
+            $objectiveId = $request->get('objectiveId');
+            if (!$objectiveId)
+            {
+                throw new Exception("Strategic objective id required!");
+            }
+            $obj = $builder->find($objectiveId);
+            if (!$obj)
+            {
+                throw new Exception("Strategic objective not found!");
+            }
+            $objective = $obj->getDetails();
+            $objective->interventions = $obj->interventions()
+                                             ->get()
+                                             ->map(function (Intervention $intervention) {
+                                                 return $intervention->getDetails();
+                                             });
+            return response()->json($objective);
         } catch (Exception $ex)
         {
             return response()->json($ex->getMessage(), Response::HTTP_FORBIDDEN);

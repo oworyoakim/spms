@@ -33,12 +33,13 @@ class OutcomeIndicatorsController extends Controller
     {
         try
         {
-            $request->validate([
+            $rules = [
                 'name' => 'required',
                 'outcomeId' => 'required',
                 'unit' => 'required',
                 'userId' => 'required',
-            ]);
+            ];
+            $this->validateData($request->all(), $rules);
             OutcomeIndicator::query()->create([
                 'name' => $request->get('name'),
                 'outcome_id' => $request->get('outcomeId'),
@@ -57,13 +58,14 @@ class OutcomeIndicatorsController extends Controller
     {
         try
         {
-            $request->validate([
+            $rules = [
                 'id' => 'required',
                 'name' => 'required',
                 'outcomeId' => 'required',
                 'unit' => 'required',
                 'userId' => 'required',
-            ]);
+            ];
+            $this->validateData($request->all(), $rules);
             $id = $request->get('id');
             $outcomeIndicator = OutcomeIndicator::query()->find($id);
             if (!$outcomeIndicator)

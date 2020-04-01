@@ -33,12 +33,13 @@ class InterventionsController extends Controller
     {
         try
         {
-            $request->validate([
+            $rules = [
                 'name' => 'required',
                 'rank' => 'required',
                 'objectiveId' => 'required',
                 'userId' => 'required',
-            ]);
+            ];
+            $this->validateData($request->all(), $rules);
             Intervention::query()->create([
                 'name' => $request->get('name'),
                 'rank' => $request->get('rank'),
@@ -57,13 +58,14 @@ class InterventionsController extends Controller
     {
         try
         {
-            $request->validate([
+            $rules = [
                 'id' => 'required',
                 'name' => 'required',
                 'rank' => 'required',
                 'objectiveId' => 'required',
                 'userId' => 'required',
-            ]);
+            ];
+            $this->validateData($request->all(), $rules);
             $id = $request->get('id');
             $intervention = Intervention::query()->find($id);
             if (!$intervention)
