@@ -4,10 +4,15 @@ namespace App\Http\Controllers;
 
 use App\Models\Intervention;
 use App\Models\Objective;
+use App\Models\Output;
+use App\Models\OutputAchievement;
+use App\Models\OutputIndicator;
+use App\Models\OutputIndicatorTarget;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Collection;
 
 class ObjectivesController extends Controller
 {
@@ -38,7 +43,6 @@ class ObjectivesController extends Controller
         {
             $rules = [
                 'name' => 'required',
-                'dueDate' => 'required|date',
                 'rank' => 'required',
                 'planId' => 'required',
                 'userId' => 'required',
@@ -46,7 +50,6 @@ class ObjectivesController extends Controller
             $this->validateData($request->all(), $rules);
             Objective::query()->create([
                 'name' => $request->get('name'),
-                'due_date' => Carbon::parse($request->get('dueDate')),
                 'rank' => $request->get('rank'),
                 'plan_id' => $request->get('planId'),
                 'description' => $request->get('description'),
@@ -66,7 +69,6 @@ class ObjectivesController extends Controller
             $rules = [
                 'id' => 'required',
                 'name' => 'required',
-                'dueDate' => 'required|date',
                 'rank' => 'required',
                 'userId' => 'required',
             ];
@@ -79,7 +81,6 @@ class ObjectivesController extends Controller
             }
             $objective->update([
                 'name' => $request->get('name'),
-                'due_date' => Carbon::parse($request->get('dueDate')),
                 'rank' => $request->get('rank'),
                 'description' => $request->get('description'),
                 'updated_by' => $request->get('userId'),
@@ -95,23 +96,43 @@ class ObjectivesController extends Controller
     {
         try
         {
-            $builder = Objective::query();
             $objectiveId = $request->get('objectiveId');
             if (!$objectiveId)
             {
                 throw new Exception("Strategic objective id required!");
             }
-            $obj = $builder->find($objectiveId);
+            $obj = Objective::query()->find($objectiveId);
             if (!$obj)
             {
                 throw new Exception("Strategic objective not found!");
             }
             $objective = $obj->getDetails();
+
             $objective->interventions = $obj->interventions()
-                                             ->get()
-                                             ->map(function (Intervention $intervention) {
-                                                 return $intervention->getDetails();
-                                             });
+                                            ->get()
+                                            ->map(function (Intervention $intervention) {
+                                                return $intervention->getDetails();
+                                            });
+            $objective->outputs = $obj->outputs()
+                                      ->get()
+                                      ->map(function (Output $output) {
+                                          return $output->getDetails();
+                                      });
+            $objective->indicators = $obj->indicators()
+                                         ->get()
+                                         ->map(function (OutputIndicator $indicator) {
+                                             return $indicator->getDetails();
+                                         });
+            $objective->targets = $obj->targets()
+                                      ->get()
+                                      ->map(function (OutputIndicatorTarget $target) {
+                                          return $target->getDetails();
+                                      });
+            $objective->achievements = $obj->achievements()
+                                           ->get()
+                                           ->map(function (OutputAchievement $achievement) {
+                                               return $achievement->getDetails();
+                                           });
             return response()->json($objective);
         } catch (Exception $ex)
         {

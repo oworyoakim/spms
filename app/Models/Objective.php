@@ -13,7 +13,6 @@ use stdClass;
  * @property string description
  * @property int plan_id
  * @property int rank
- * @property Carbon due_date
  * @property int created_by
  * @property int updated_by
  * @property Carbon created_at
@@ -35,6 +34,26 @@ class Objective extends Model
         return $this->hasMany(Intervention::class, 'objective_id');
     }
 
+    public function outputs()
+    {
+        return $this->hasMany(Output::class, 'objective_id');
+    }
+
+    public function indicators()
+    {
+        return $this->hasMany(OutputIndicator::class, 'objective_id');
+    }
+
+    public function targets()
+    {
+        return $this->hasMany(OutputIndicatorTarget::class, 'objective_id');
+    }
+
+    public function achievements()
+    {
+        return $this->hasMany(OutputAchievement::class, 'objective_id');
+    }
+
     public function activities()
     {
         return $this->hasMany(Activity::class, 'objective_id');
@@ -44,11 +63,12 @@ class Objective extends Model
     {
         $objective = new stdClass();
         $objective->id = $this->id;
-        $objective->planId = $this->plan_id;
         $objective->name = $this->name;
         $objective->description = $this->description;
         $objective->rank = $this->rank;
-        $objective->dueDate = $this->due_date->toDateTimeString();
+        $objective->planId = $this->plan_id;
+        $objective->plan = $this->plan ? $this->plan->getDetails() : null;
+        $objective->reportPeriods = $objective->plan ? $objective->plan->reportPeriods : [];
         $objective->createdBy = $this->created_by;
         $objective->updatedBy = $this->updated_by;
         $objective->createdAt = $this->created_at->toDateTimeString();

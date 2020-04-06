@@ -16,9 +16,10 @@ class CreateOutputIndicatorsTable extends Migration
     {
         Schema::create('output_indicators', function (Blueprint $table) {
             $table->id();
+            $table->unsignedBigInteger('objective_id')->nullable();
+            $table->unsignedBigInteger('output_id');
             $table->string('name');
             $table->text('description')->nullable();
-            $table->unsignedBigInteger('output_id');
             $table->enum('unit', [OutputIndicator::UNIT_COUNT, OutputIndicator::UNIT_PERCENT]);
             $table->unsignedBigInteger('created_by')->nullable();
             $table->unsignedBigInteger('updated_by')->nullable();

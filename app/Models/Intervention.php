@@ -41,19 +41,16 @@ class Intervention extends Model
         $intervention->createdBy = $this->created_by;
         $intervention->updatedBy = $this->updated_by;
         $intervention->objectiveId = $this->objective_id;
-        $intervention->objective = null;
-        if ($this->objective)
-        {
-            $intervention->objective = $this->objective->getDetails();
-        }
-        $intervention->createdAt = $this->created_at->toDateTimeString();
-        $intervention->updatedAt = $this->updated_at->toDateTimeString();
-
+        $intervention->objective = $this->objective ? $this->objective->getDetails() : null;
+        /*
         $intervention->outputs = $this->outputs()
                                       ->get()
                                       ->map(function (Output $output) {
                                           return $output->getDetails();
                                       });
+        */
+        $intervention->createdAt = $this->created_at->toDateTimeString();
+        $intervention->updatedAt = $this->updated_at->toDateTimeString();
         return $intervention;
     }
 }

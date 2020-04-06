@@ -36,12 +36,14 @@ class OutcomeIndicatorsController extends Controller
             $rules = [
                 'name' => 'required',
                 'outcomeId' => 'required',
+                'keyResultAreaId' => 'required',
                 'unit' => 'required',
                 'userId' => 'required',
             ];
             $this->validateData($request->all(), $rules);
             OutcomeIndicator::query()->create([
                 'name' => $request->get('name'),
+                'key_result_area_id' => $request->get('keyResultAreaId'),
                 'outcome_id' => $request->get('outcomeId'),
                 'description' => $request->get('description'),
                 'unit' => $request->get('unit'),
@@ -61,7 +63,6 @@ class OutcomeIndicatorsController extends Controller
             $rules = [
                 'id' => 'required',
                 'name' => 'required',
-                'outcomeId' => 'required',
                 'unit' => 'required',
                 'userId' => 'required',
             ];
@@ -75,7 +76,6 @@ class OutcomeIndicatorsController extends Controller
             $outcomeIndicator->update([
                 'name' => $request->get('name'),
                 'description' => $request->get('description'),
-                'outcome_id' => $request->get('outcomeId'),
                 'unit' => $request->get('unit'),
                 'updated_by' => $request->get('userId'),
             ]);

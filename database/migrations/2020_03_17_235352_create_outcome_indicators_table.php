@@ -16,9 +16,10 @@ class CreateOutcomeIndicatorsTable extends Migration
     {
         Schema::create('outcome_indicators', function (Blueprint $table) {
             $table->id();
-            $table->string('name');
-            $table->string('description')->nullable();
+            $table->unsignedBigInteger('key_result_area_id');
             $table->unsignedBigInteger('outcome_id');
+            $table->string('name');
+            $table->text('description')->nullable();
             $table->enum('unit', [OutcomeIndicator::UNIT_COUNT, OutcomeIndicator::UNIT_PERCENT]);
             $table->unsignedBigInteger('created_by')->nullable();
             $table->unsignedBigInteger('updated_by')->nullable();

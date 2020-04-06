@@ -59,7 +59,7 @@ class OutcomesController extends Controller
             $rules = [
                 'id' => 'required',
                 'name' => 'required',
-                'keyResultAreaId' => 'required',
+                'userId' => 'required',
             ];
             $this->validateData($request->all(), $rules);
             $id = $request->get('id');
@@ -71,7 +71,6 @@ class OutcomesController extends Controller
             $outcome->update([
                 'name' => $request->get('name'),
                 'description' => $request->get('description'),
-                'key_result_area_id' => $request->get('keyResultAreaId'),
                 'updated_by' => $request->get('userId'),
             ]);
             return response()->json("Outcome updated!");

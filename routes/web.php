@@ -68,10 +68,16 @@ $router->group(['prefix' => 'v1'], function () use ($router) {
         $router->put('', 'OutputIndicatorsController@update');
     });
 
-    $router->group(['prefix' => 'output-indicator-milestones'], function () use ($router) {
-        $router->get('', 'OutputIndicatorMilestonesController@index');
-        $router->post('', 'OutputIndicatorMilestonesController@store');
-        $router->put('', 'OutputIndicatorMilestonesController@update');
+    $router->group(['prefix' => 'output-indicator-targets'], function () use ($router) {
+        $router->get('', 'OutputIndicatorTargetsController@index');
+        $router->post('', 'OutputIndicatorTargetsController@store');
+        $router->put('', 'OutputIndicatorTargetsController@update');
+    });
+
+    $router->group(['prefix' => 'output-achievements'], function () use ($router) {
+        $router->get('', 'OutputAchievementsController@index');
+        $router->post('', 'OutputAchievementsController@store');
+        $router->put('', 'OutputAchievementsController@update');
     });
 
     $router->group(['prefix' => 'outcomes'], function () use ($router) {
@@ -86,10 +92,16 @@ $router->group(['prefix' => 'v1'], function () use ($router) {
         $router->put('', 'OutcomeIndicatorsController@update');
     });
 
-    $router->group(['prefix' => 'outcome-indicator-milestones'], function () use ($router) {
-        $router->get('', 'OutcomeIndicatorMilestonesController@index');
-        $router->post('', 'OutcomeIndicatorMilestonesController@store');
-        $router->put('', 'OutcomeIndicatorMilestonesController@update');
+    $router->group(['prefix' => 'outcome-indicator-targets'], function () use ($router) {
+        $router->get('', 'OutcomeIndicatorTargetsController@index');
+        $router->post('', 'OutcomeIndicatorTargetsController@store');
+        $router->put('', 'OutcomeIndicatorTargetsController@update');
+    });
+
+    $router->group(['prefix' => 'outcome-achievements'], function () use ($router) {
+        $router->get('', 'OutcomeAchievementsController@index');
+        $router->post('', 'OutcomeAchievementsController@store');
+        $router->put('', 'OutcomeAchievementsController@update');
     });
 
     $router->group(['prefix' => 'activities'], function () use ($router) {

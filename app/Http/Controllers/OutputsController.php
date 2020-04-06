@@ -37,12 +37,14 @@ class OutputsController extends Controller
             $rules = [
                 'name' => 'required',
                 'interventionId' => 'required',
+                'objectiveId' => 'required',
                 'userId' => 'required',
             ];
             $this->validateData($request->all(), $rules);
             Output::query()->create([
                 'name' => $request->get('name'),
                 'intervention_id' => $request->get('interventionId'),
+                'objective_id' => $request->get('objectiveId'),
                 'description' => $request->get('description'),
                 'created_by' => $request->get('userId'),
             ]);
@@ -60,7 +62,7 @@ class OutputsController extends Controller
             $rules = [
                 'id' => 'required',
                 'name' => 'required',
-                'interventionId' => 'required',
+                'userId' => 'required',
             ];
             $this->validateData($request->all(), $rules);
             $id = $request->get('id');
@@ -72,7 +74,6 @@ class OutputsController extends Controller
             $output->update([
                 'name' => $request->get('name'),
                 'description' => $request->get('description'),
-                'intervention_id' => $request->get('interventionId'),
                 'updated_by' => $request->get('userId'),
             ]);
             return response()->json("Output updated!");

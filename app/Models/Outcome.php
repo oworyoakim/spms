@@ -22,8 +22,9 @@ class Outcome extends Model
 {
     protected $dates = ['deleted_at'];
 
-    public function keyResultArea(){
-        return $this->belongsTo(KeyResultArea::class,'key_result_area_id');
+    public function keyResultArea()
+    {
+        return $this->belongsTo(KeyResultArea::class, 'key_result_area_id');
     }
 
     public function indicators()
@@ -36,13 +37,16 @@ class Outcome extends Model
         $outcome = new stdClass();
         $outcome->id = $this->id;
         $outcome->keyResultAreaId = $this->key_result_area_id;
+        $outcome->keyResultArea = $this->keyResultArea ? $this->keyResultArea->getDetails() : null;
         $outcome->name = $this->name;
         $outcome->description = $this->description;
-
-        $outcome->indicators = $this->indicators()->get()->map(function (OutcomeIndicator $indicator){
-            return $indicator->getDetails();
-        });
-
+        /*
+        $outcome->indicators = $this->indicators()
+                                    ->get()
+                                    ->map(function (OutcomeIndicator $indicator) {
+                                        return $indicator->getDetails();
+                                    });
+        */
         $outcome->createdBy = $this->created_by;
         $outcome->updatedBy = $this->updated_by;
         $outcome->createdAt = $this->created_at->toDateTimeString();

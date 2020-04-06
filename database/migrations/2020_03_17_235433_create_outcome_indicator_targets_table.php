@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateKeyResultAreasTable extends Migration
+class CreateOutcomeIndicatorTargetsTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,12 +13,13 @@ class CreateKeyResultAreasTable extends Migration
      */
     public function up()
     {
-        Schema::create('key_result_areas', function (Blueprint $table) {
+        Schema::create('outcome_indicator_targets', function (Blueprint $table) {
             $table->id();
-            $table->string('name');
-            $table->text('description')->nullable();
-            $table->unsignedBigInteger('plan_id');
-            $table->unsignedTinyInteger('rank');
+            $table->unsignedBigInteger('key_result_area_id');
+            $table->unsignedBigInteger('outcome_indicator_id');
+            $table->timestamp('due_date');
+            $table->unsignedFloat('baseline')->nullable();
+            $table->unsignedFloat('target')->nullable();
             $table->unsignedBigInteger('created_by')->nullable();
             $table->unsignedBigInteger('updated_by')->nullable();
             $table->timestamps();
@@ -33,6 +34,6 @@ class CreateKeyResultAreasTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('key_result_areas');
+        Schema::dropIfExists('outcome_indicator_targets');
     }
 }

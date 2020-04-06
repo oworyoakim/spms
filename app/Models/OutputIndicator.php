@@ -12,6 +12,7 @@ use stdClass;
  * @property string name
  * @property string description
  * @property int output_id
+ * @property int objective_id
  * @property string unit
  * @property int created_by
  * @property int updated_by
@@ -31,24 +32,37 @@ class OutputIndicator extends Model
         return $this->belongsTo(Output::class, 'output_id');
     }
 
-    public function milestones()
+    public function targets()
     {
-        return $this->hasMany(OutputIndicatorMilestone::class, 'output_indicator_id');
+        return $this->hasMany(OutputIndicatorTarget::class, 'output_indicator_id');
+    }
+
+    public function achievements()
+    {
+        return $this->hasMany(OutputAchievement::class, 'output_indicator_id');
     }
 
     public function getDetails()
     {
         $indicator = new stdClass();
         $indicator->id = $this->id;
+        $indicator->objectiveId = $this->objective_id;
         $indicator->outputId = $this->output_id;
         $indicator->name = $this->name;
         $indicator->description = $this->description;
         $indicator->unit = $this->unit;
-        $indicator->milestones = $this->milestones()
+        /*
+        $indicator->targets = $this->targets()
                                       ->get()
-                                      ->map(function (OutputIndicatorMilestone $milestone) {
-                                          return $milestone->getDetails();
+                                      ->map(function (OutputIndicatorTarget $target) {
+                                          return $target->getDetails();
                                       });
+        $indicator->achievements = $this->achievements()
+                                        ->get()
+                                        ->map(function (OutputAchievement $achievement) {
+                                            return $achievement->getDetails();
+                                        });
+        */
         $indicator->createdBy = $this->created_by;
         $indicator->createdAt = $this->created_at->toDateTimeString();
         $indicator->updatedBy = $this->updated_by;

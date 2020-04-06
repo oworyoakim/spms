@@ -11,6 +11,7 @@ use stdClass;
  * @property int id
  * @property string name
  * @property string description
+ * @property int objective_id
  * @property int intervention_id
  * @property int created_by
  * @property int updated_by
@@ -36,16 +37,18 @@ class Output extends Model
     {
         $output = new stdClass();
         $output->id = $this->id;
+        $output->objectiveId = $this->objective_id;
         $output->interventionId = $this->intervention_id;
         $output->name = $this->name;
         $output->description = $this->description;
-
+        $output->intervention = $this->intervention ? $this->intervention->getDetails() : null;
+        /*
         $output->indicators = $this->indicators()
                                    ->get()
                                    ->map(function (OutputIndicator $indicator) {
                                        return $indicator->getDetails();
                                    });
-
+        */
         $output->createdBy = $this->created_by;
         $output->updatedBy = $this->updated_by;
         $output->createdAt = $this->created_at->toDateTimeString();

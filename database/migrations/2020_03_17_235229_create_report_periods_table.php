@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateKeyResultAreasTable extends Migration
+class CreateReportPeriodsTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,14 +13,12 @@ class CreateKeyResultAreasTable extends Migration
      */
     public function up()
     {
-        Schema::create('key_result_areas', function (Blueprint $table) {
+        Schema::create('report_periods', function (Blueprint $table) {
             $table->id();
-            $table->string('name');
-            $table->text('description')->nullable();
             $table->unsignedBigInteger('plan_id');
-            $table->unsignedTinyInteger('rank');
-            $table->unsignedBigInteger('created_by')->nullable();
-            $table->unsignedBigInteger('updated_by')->nullable();
+            $table->string('name');
+            $table->timestamp('start_date');
+            $table->timestamp('end_date');
             $table->timestamps();
             $table->softDeletes();
         });
@@ -33,6 +31,6 @@ class CreateKeyResultAreasTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('key_result_areas');
+        Schema::dropIfExists('report_periods');
     }
 }

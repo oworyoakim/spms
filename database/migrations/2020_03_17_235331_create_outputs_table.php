@@ -15,9 +15,12 @@ class CreateOutputsTable extends Migration
     {
         Schema::create('outputs', function (Blueprint $table) {
             $table->id();
+            $table->unsignedBigInteger('objective_id')->nullable();
             $table->unsignedBigInteger('intervention_id');
             $table->string('name');
-            $table->string('description')->nullable();
+            $table->text('description')->nullable();
+            $table->unsignedBigInteger('created_by')->nullable();
+            $table->unsignedBigInteger('updated_by')->nullable();
             $table->timestamps();
             $table->softDeletes();
         });

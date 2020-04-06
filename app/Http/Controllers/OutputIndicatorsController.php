@@ -35,6 +35,7 @@ class OutputIndicatorsController extends Controller
         {
             $rules = [
                 'name' => 'required',
+                'objectiveId' => 'required',
                 'outputId' => 'required',
                 'unit' => 'required',
                 'userId' => 'required',
@@ -43,6 +44,7 @@ class OutputIndicatorsController extends Controller
             OutputIndicator::query()->create([
                 'name' => $request->get('name'),
                 'output_id' => $request->get('outputId'),
+                'objective_id' => $request->get('objectiveId'),
                 'description' => $request->get('description'),
                 'unit' => $request->get('unit'),
                 'created_by' => $request->get('userId'),
@@ -61,7 +63,6 @@ class OutputIndicatorsController extends Controller
             $rules = [
                 'id' => 'required',
                 'name' => 'required',
-                'outputId' => 'required',
                 'unit' => 'required',
                 'userId' => 'required',
             ];
@@ -75,7 +76,6 @@ class OutputIndicatorsController extends Controller
             $outputIndicator->update([
                 'name' => $request->get('name'),
                 'description' => $request->get('description'),
-                'output_id' => $request->get('outputId'),
                 'unit' => $request->get('unit'),
                 'updated_by' => $request->get('userId'),
             ]);

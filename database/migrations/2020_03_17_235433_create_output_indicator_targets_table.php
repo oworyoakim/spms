@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateOutputIndicatorMilestonesTable extends Migration
+class CreateOutputIndicatorTargetsTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,13 +13,13 @@ class CreateOutputIndicatorMilestonesTable extends Migration
      */
     public function up()
     {
-        Schema::create('output_indicator_milestones', function (Blueprint $table) {
+        Schema::create('output_indicator_targets', function (Blueprint $table) {
             $table->id();
+            $table->unsignedBigInteger('objective_id')->nullable();
             $table->unsignedBigInteger('output_indicator_id');
-            $table->string('financial_year');
-            $table->timestamp('due_date');
+            $table->unsignedBigInteger('report_period_id');
             $table->unsignedFloat('target')->nullable();
-            $table->unsignedFloat('actual')->nullable();
+            $table->timestamp('due_date');
             $table->unsignedBigInteger('created_by')->nullable();
             $table->unsignedBigInteger('updated_by')->nullable();
             $table->timestamps();
@@ -34,6 +34,6 @@ class CreateOutputIndicatorMilestonesTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('outcome_indicator_milestones');
+        Schema::dropIfExists('output_indicator_targets');
     }
 }

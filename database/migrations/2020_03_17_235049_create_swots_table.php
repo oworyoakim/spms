@@ -17,7 +17,7 @@ class CreateSwotsTable extends Migration
         Schema::create('swots', function (Blueprint $table) {
             $table->id();
             $table->string('name');
-            $table->string('description')->nullable();
+            $table->text('description')->nullable();
             $table->unsignedBigInteger('plan_id');
             $table->enum('type', [
                 Swot::TYPE_STRENGTHS,

@@ -38,11 +38,19 @@ class KeyResultArea extends Model
     {
         $resultArea = new stdClass();
         $resultArea->id = $this->id;
-        $resultArea->planId = $this->plan_id;
         $resultArea->name = $this->name;
         $resultArea->description = $this->description;
         $resultArea->rank = $this->rank;
-        $resultArea->dueDate = $this->due_date->toDateTimeString();
+        $resultArea->planId = $this->plan_id;
+        $resultArea->plan = $this->plan ? $this->plan->getDetails() : null;
+        $resultArea->reportPeriods = $resultArea->plan ? $resultArea->plan->reportPeriods : [];
+        /*
+        $resultArea->outcomes = $this->outcomes()
+                                      ->get()
+                                      ->map(function (Outcome $outcome) {
+                                          return $outcome->getDetails();
+                                      });
+        */
         $resultArea->createdBy = $this->created_by;
         $resultArea->updatedBy = $this->updated_by;
         $resultArea->createdAt = $this->created_at->toDateTimeString();
