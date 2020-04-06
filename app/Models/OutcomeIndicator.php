@@ -14,6 +14,7 @@ use stdClass;
  * @property int key_result_area_id
  * @property int outcome_id
  * @property string unit
+ * @property float baseline
  * @property int created_by
  * @property int updated_by
  * @property Carbon created_at
@@ -51,6 +52,8 @@ class OutcomeIndicator extends Model
         $indicator->name = $this->name;
         $indicator->description = $this->description;
         $indicator->unit = $this->unit;
+        $indicator->baseline = $this->baseline;
+
         /*
         $indicator->targets = $this->targets()
                                       ->get()

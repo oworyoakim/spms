@@ -80,6 +80,13 @@ $router->group(['prefix' => 'v1'], function () use ($router) {
         $router->put('', 'OutputAchievementsController@update');
     });
 
+    $router->group(['prefix' => 'key-result-areas'], function () use ($router) {
+        $router->get('', 'KeyResultAreaController@index');
+        $router->post('', 'KeyResultAreaController@store');
+        $router->put('', 'KeyResultAreaController@update');
+        $router->get('show', 'KeyResultAreaController@show');
+    });
+
     $router->group(['prefix' => 'outcomes'], function () use ($router) {
         $router->get('', 'OutcomesController@index');
         $router->post('', 'OutcomesController@store');

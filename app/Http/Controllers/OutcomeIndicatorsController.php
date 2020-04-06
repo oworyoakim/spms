@@ -47,6 +47,7 @@ class OutcomeIndicatorsController extends Controller
                 'outcome_id' => $request->get('outcomeId'),
                 'description' => $request->get('description'),
                 'unit' => $request->get('unit'),
+                'baseline' => $request->get('baseline'),
                 'created_by' => $request->get('userId'),
             ]);
             return response()->json("Outcome indicator created!");
@@ -77,6 +78,7 @@ class OutcomeIndicatorsController extends Controller
                 'name' => $request->get('name'),
                 'description' => $request->get('description'),
                 'unit' => $request->get('unit'),
+                'baseline' => $request->get('baseline'),
                 'updated_by' => $request->get('userId'),
             ]);
             return response()->json("Outcome indicator updated!");

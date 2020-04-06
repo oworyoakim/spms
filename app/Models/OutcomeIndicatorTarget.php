@@ -13,7 +13,6 @@ use stdClass;
  * @property int outcome_indicator_id
  * @property int report_period_id
  * @property Carbon due_date
- * @property float baseline
  * @property float target
  * @property int created_by
  * @property int updated_by
@@ -31,13 +30,18 @@ class OutcomeIndicatorTarget extends Model
         return $this->belongsTo(OutcomeIndicator::class, 'outcome_indicator_id');
     }
 
+    public function reportPeriod()
+    {
+        return $this->belongsTo(ReportPeriod::class, 'report_period_id');
+    }
+
     public function getDetails()
     {
         $indicatorTarget = new stdClass();
         $indicatorTarget->id = $this->id;
         $indicatorTarget->keyResultAreaId = $this->key_result_area_id;
-        $indicatorTarget->indicatorId = $this->outcome_indicator_id;
-        $indicatorTarget->indicator = $this->indicator ? $this->indicator->getDetails() : null;
+        $indicatorTarget->outcomeIndicatorId = $this->outcome_indicator_id;
+        $indicatorTarget->outcomeIndicator = $this->indicator ? $this->indicator->getDetails() : null;
         $indicatorTarget->reportPeriodId = $this->report_period_id;
         $indicatorTarget->reportPeriod = $this->reportPeriod ? $this->reportPeriod->getDetails() : null;
         $indicatorTarget->target = $this->target;

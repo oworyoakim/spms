@@ -24,6 +24,7 @@ class CreateOutputIndicatorTargetsTable extends Migration
             $table->unsignedBigInteger('updated_by')->nullable();
             $table->timestamps();
             $table->softDeletes();
+            $table->unique(['objective_id','output_indicator_id','report_period_id'],'unique_output_targets');
         });
     }
 

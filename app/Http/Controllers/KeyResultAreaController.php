@@ -3,6 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Models\KeyResultArea;
+use App\Models\Outcome;
+use App\Models\OutcomeAchievement;
+use App\Models\OutcomeIndicator;
+use App\Models\OutcomeIndicatorTarget;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
@@ -21,9 +25,10 @@ class KeyResultAreaController extends Controller
                 throw new Exception("Strategic plan id required!");
             }
             $builder->where('plan_id', $planId);
-            $keyResultAreas = $builder->get()->map(function (KeyResultArea $keyResultArea) {
-                return $keyResultArea->getDetails();
-            });
+            $keyResultAreas = $builder->get()
+                                      ->map(function (KeyResultArea $keyResultArea) {
+                                          return $keyResultArea->getDetails();
+                                      });
             return response()->json($keyResultAreas);
         } catch (Exception $ex)
         {
@@ -80,6 +85,50 @@ class KeyResultAreaController extends Controller
                 'updated_by' => $request->get('userId'),
             ]);
             return response()->json("Key result area updated!");
+        } catch (Exception $ex)
+        {
+            return response()->json($ex->getMessage(), Response::HTTP_FORBIDDEN);
+        }
+    }
+
+    public function show(Request $request)
+    {
+        try
+        {
+            $keyResultAreaId = $request->get('keyResultAreaId');
+            if (!$keyResultAreaId)
+            {
+                throw new Exception("Key result area id required!");
+            }
+            $kra = KeyResultArea::query()->find($keyResultAreaId);
+            if (!$kra)
+            {
+                throw new Exception("Key result area not found!");
+            }
+            $keyResultArea = $kra->getDetails();
+
+            $keyResultArea->outcomes = $kra->outcomes()
+                                      ->get()
+                                      ->map(function (Outcome $outcome) {
+                                          return $outcome->getDetails();
+                                      });
+
+            $keyResultArea->indicators = $kra->indicators()
+                                         ->get()
+                                         ->map(function (OutcomeIndicator $indicator) {
+                                             return $indicator->getDetails();
+                                         });
+            $keyResultArea->targets = $kra->targets()
+                                      ->get()
+                                      ->map(function (OutcomeIndicatorTarget $target) {
+                                          return $target->getDetails();
+                                      });
+            $keyResultArea->achievements = $kra->achievements()
+                                           ->get()
+                                           ->map(function (OutcomeAchievement $achievement) {
+                                               return $achievement->getDetails();
+                                           });
+            return response()->json($keyResultArea);
         } catch (Exception $ex)
         {
             return response()->json($ex->getMessage(), Response::HTTP_FORBIDDEN);

@@ -21,6 +21,7 @@ class CreateOutcomeIndicatorsTable extends Migration
             $table->string('name');
             $table->text('description')->nullable();
             $table->enum('unit', [OutcomeIndicator::UNIT_COUNT, OutcomeIndicator::UNIT_PERCENT]);
+            $table->unsignedFloat('baseline')->nullable();
             $table->unsignedBigInteger('created_by')->nullable();
             $table->unsignedBigInteger('updated_by')->nullable();
             $table->timestamps();

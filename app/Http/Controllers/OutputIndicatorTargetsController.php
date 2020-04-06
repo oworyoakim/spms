@@ -48,14 +48,15 @@ class OutputIndicatorTargetsController extends Controller
             {
                 throw new Exception("Report period is required!");
             }
-            OutputIndicatorTarget::query()->create([
+            OutputIndicatorTarget::query()
+                                 ->updateOrCreate([
                 'objective_id' => $request->get('objectiveId'),
                 'output_indicator_id' => $request->get('outputIndicatorId'),
-                'report_period_id' => $reportPeriodId,
-                'target' => $request->get('target'),
-                'due_date' => $reportPeriod->end_date,
-                'created_by' => $request->get('userId'),
-            ]);
+                'report_period_id' => $reportPeriodId], [
+                    'target' => $request->get('target'),
+                    'due_date' => $reportPeriod->end_date,
+                    'created_by' => $request->get('userId'),
+                ]);
             return response()->json("Output indicator target created!");
         } catch (Exception $ex)
         {
@@ -70,7 +71,6 @@ class OutputIndicatorTargetsController extends Controller
             $rules = [
                 'id' => 'required',
                 'target' => 'required|numeric',
-                'reportPeriodId' => 'required',
                 'userId' => 'required',
             ];
             $this->validateData($request->all(), $rules);
@@ -80,17 +80,9 @@ class OutputIndicatorTargetsController extends Controller
             {
                 throw new Exception("Output indicator target with id {$id} not found!");
             }
-            $reportPeriodId = $request->get('reportPeriodId');
-            $reportPeriod = ReportPeriod::query()->find($reportPeriodId);
-            if (!$reportPeriod)
-            {
-                throw new Exception("Report period is required!");
-            }
 
             $outputIndicatorTarget->update([
-                'report_period_id' => $reportPeriodId,
                 'target' => $request->get('target'),
-                'due_date' => $reportPeriod->end_date,
                 'updated_by' => $request->get('userId'),
             ]);
             return response()->json("Output indicator target updated!");

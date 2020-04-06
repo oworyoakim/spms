@@ -31,7 +31,22 @@ class KeyResultArea extends Model
 
     public function outcomes()
     {
-        return $this->belongsTo(Outcome::class, 'key_result_area_id');
+        return $this->hasMany(Outcome::class, 'key_result_area_id');
+    }
+
+    public function indicators()
+    {
+        return $this->hasMany(OutcomeIndicator::class, 'key_result_area_id');
+    }
+
+    public function targets()
+    {
+        return $this->hasMany(OutcomeIndicatorTarget::class, 'key_result_area_id');
+    }
+
+    public function achievements()
+    {
+        return $this->hasMany(OutcomeAchievement::class, 'key_result_area_id');
     }
 
     public function getDetails()
