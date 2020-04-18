@@ -15,10 +15,19 @@ class TasksController extends Controller
         try
         {
             $builder = Task::query();
+            $stageId = $request->get('stageId');
             $activityId = $request->get('activityId');
+            if (!$activityId || !$stageId)
+            {
+               throw new Exception("Activity ID or Stage ID required!");
+            }
             if ($activityId)
             {
                 $builder->where('activity_id', $activityId);
+            }
+            if ($stageId)
+            {
+                $builder->where('stage_id', $stageId);
             }
             $status = $request->get('status');
             if ($status)
@@ -42,17 +51,21 @@ class TasksController extends Controller
         {
             $rules = [
                 'title' => 'required',
-                'start_date' => 'required|date',
-                'due_date' => 'required|date',
+                'startDate' => 'required|date',
+                'dueDate' => 'required|date',
+                'workPlanId' => 'required',
                 'activityId' => 'required',
+                'stageId' => 'required',
                 'userId' => 'required',
             ];
             $this->validateData($request->all(), $rules);
             Task::query()->create([
                 'title' => $request->get('title'),
-                'start_date' => Carbon::parse($request->get('start_date')),
-                'due_date' => Carbon::parse($request->get('due_date')),
+                'start_date' => Carbon::parse($request->get('startDate')),
+                'due_date' => Carbon::parse($request->get('dueDate')),
+                'work_plan_id' => $request->get('workPlanId'),
                 'activity_id' => $request->get('activityId'),
+                'stage_id' => $request->get('stageId'),
                 'description' => $request->get('description'),
                 'created_by' => $request->get('userId'),
             ]);
@@ -70,9 +83,9 @@ class TasksController extends Controller
             $rules = [
                 'id' => 'required',
                 'title' => 'required',
-                'start_date' => 'required|date',
-                'due_date' => 'required|date',
-                'activityId' => 'required',
+                'startDate' => 'required|date',
+                'dueDate' => 'required|date',
+                'stageId' => 'required',
                 'userId' => 'required',
             ];
             $this->validateData($request->all(), $rules);
@@ -85,9 +98,9 @@ class TasksController extends Controller
             $task->update([
                 'title' => $request->get('title'),
                 'description' => $request->get('description'),
-                'start_date' => Carbon::parse($request->get('start_date')),
-                'due_date' => Carbon::parse($request->get('due_date')),
-                'activity_id' => $request->get('activityId'),
+                'start_date' => Carbon::parse($request->get('startDate')),
+                'due_date' => Carbon::parse($request->get('dueDate')),
+                'stage_id' => $request->get('stageId'),
                 'updated_by' => $request->get('userId'),
             ]);
             return response()->json("Task updated!");

@@ -33,6 +33,11 @@ class Output extends Model
         return $this->hasMany(OutputIndicator::class, 'output_id');
     }
 
+    public function activities()
+    {
+        return $this->belongsToMany(Activity::class, 'activity_outputs')->withTimestamps();
+    }
+
     public function getDetails()
     {
         $output = new stdClass();

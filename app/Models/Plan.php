@@ -62,6 +62,16 @@ class Plan extends Model
         return $this->hasMany(Swot::class, 'plan_id');
     }
 
+    public function objectives()
+    {
+        return $this->hasMany(Objective::class, 'plan_id');
+    }
+
+    public function keyResultAreas()
+    {
+        return $this->hasMany(KeyResultArea::class, 'plan_id');
+    }
+
     public function reportPeriods()
     {
         return $this->hasMany(ReportPeriod::class, 'plan_id');
@@ -78,6 +88,7 @@ class Plan extends Model
         $plan->values = $this->values;
         $plan->frequency = $this->frequency;
         $plan->status = $this->status;
+        $plan->financialYears = $this->financialYears();
         $plan->reportPeriods = $this->reportPeriods()
                                     ->get()
                                     ->map(function (ReportPeriod $period) {
@@ -171,5 +182,19 @@ class Plan extends Model
             $this->reportPeriods()->forceDelete();
             $this->reportPeriods()->saveMany($periods);
         }
+    }
+
+    public function financialYears(){
+        $financialYears = [];
+        $periodStartDate = $this->start_date->clone();
+        while ($periodStartDate->lessThan($this->end_date))
+        {
+            $periodEndDate = $periodStartDate->clone()->addMonths(12)->subDays(1);
+            $financialYear = "{$periodStartDate->year}/{$periodEndDate->year}";
+            $financialYears[] = $financialYear;
+            $periodStartDate = $periodEndDate->addDays(1);
+        }
+
+        return $financialYears;
     }
 }

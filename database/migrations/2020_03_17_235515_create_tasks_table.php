@@ -15,12 +15,15 @@ class CreateTasksTable extends Migration
     {
         Schema::create('tasks', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('activity_id')->nullable();
+            $table->unsignedBigInteger('work_plan_id')->index();
+            $table->unsignedBigInteger('activity_id')->index();
+            $table->unsignedBigInteger('stage_id')->index();
             $table->string('name');
             $table->text('description')->nullable();
             $table->timestamp('start_date')->nullable();
+            $table->timestamp('due_date')->nullable();
             $table->timestamp('end_date')->nullable();
-            $table->enum('status',['pending','ongoing','canceled','completed'])->default('pending');
+            $table->enum('status',['pending','ongoing','onhold','completed'])->default('pending')->index();
             $table->unsignedBigInteger('created_by')->nullable();
             $table->unsignedBigInteger('updated_by')->nullable();
             $table->timestamps();

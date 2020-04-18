@@ -54,11 +54,6 @@ class Objective extends Model
         return $this->hasMany(OutputAchievement::class, 'objective_id');
     }
 
-    public function activities()
-    {
-        return $this->hasMany(Activity::class, 'objective_id');
-    }
-
     public function getDetails()
     {
         $objective = new stdClass();

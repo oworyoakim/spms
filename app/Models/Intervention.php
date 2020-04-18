@@ -26,6 +26,11 @@ class Intervention extends Model
         return $this->belongsTo(Objective::class, 'objective_id');
     }
 
+    public function activities()
+    {
+        return $this->hasMany(Activity::class, 'intervention_id');
+    }
+
     public function outputs()
     {
         return $this->hasMany(Output::class, 'intervention_id');

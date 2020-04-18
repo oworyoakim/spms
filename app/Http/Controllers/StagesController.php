@@ -2,44 +2,35 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Activity;
+use App\Models\Stage;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Carbon;
 
-class ActivitiesController extends Controller
+class StagesController extends Controller
 {
     public function index(Request $request)
     {
         try
         {
-            $builder = Activity::query();
-            $interventionId = $request->get('interventionId');
-            $workPlanId = $request->get('workPlanId');
-            if(!$workPlanId || !$interventionId){
-                throw new Exception("Intervention ID or Work Plan ID required!");
-            }
-            if ($workPlanId)
+            $builder = Stage::query();
+            $activityId = $request->get('activityId');
+            if (!$activityId)
             {
-                $builder->where('work_plan_id', $workPlanId);
+                throw new Exception("Activity ID required!");
             }
-
-            if ($interventionId)
-            {
-                $builder->where('intervention_id', $interventionId);
-            }
-
+            $builder->where('activity_id', $activityId);
             $status = $request->get('status');
             if ($status)
             {
                 $builder->where('status', $status);
             }
 
-            $activities = $builder->get()->map(function (Activity $activity) {
-                return $activity->getDetails();
+            $stages = $builder->get()->map(function (Stage $stage) {
+                return $stage->getDetails();
             });
-            return response()->json($activities);
+            return response()->json($stages);
         } catch (Exception $ex)
         {
             return response()->json($ex->getMessage(), Response::HTTP_FORBIDDEN);
@@ -55,20 +46,20 @@ class ActivitiesController extends Controller
                 'startDate' => 'required|date',
                 'dueDate' => 'required|date',
                 'workPlanId' => 'required',
-                'interventionId' => 'required',
+                'activityId' => 'required',
                 'userId' => 'required',
             ];
-            $this->validateData($request->all(),$rules);
-            Activity::query()->create([
+            $this->validateData($request->all(), $rules);
+            Stage::query()->create([
                 'title' => $request->get('title'),
                 'start_date' => Carbon::parse($request->get('startDate')),
                 'due_date' => Carbon::parse($request->get('dueDate')),
                 'work_plan_id' => $request->get('workPlanId'),
-                'intervention_id' => $request->get('interventionId'),
+                'activity_id' => $request->get('activityId'),
                 'description' => $request->get('description'),
                 'created_by' => $request->get('userId'),
             ]);
-            return response()->json("Activity created!");
+            return response()->json("Stage created!");
         } catch (Exception $ex)
         {
             return response()->json($ex->getMessage(), Response::HTTP_FORBIDDEN);
@@ -84,27 +75,25 @@ class ActivitiesController extends Controller
                 'title' => 'required',
                 'startDate' => 'required|date',
                 'dueDate' => 'required|date',
-                'interventionId' => 'required',
-                'workPlanId' => 'required',
+                'activityId' => 'required',
                 'userId' => 'required',
             ];
-            $this->validateData($request->all(),$rules);
+            $this->validateData($request->all(), $rules);
             $id = $request->get('id');
-            $activity = Activity::query()->find($id);
-            if (!$activity)
+            $stage = Stage::query()->find($id);
+            if (!$stage)
             {
-                throw new Exception("Activity with id {$id} not found!");
+                throw new Exception("Stage with id {$id} not found!");
             }
-            $activity->update([
+            $stage->update([
                 'title' => $request->get('title'),
                 'description' => $request->get('description'),
                 'start_date' => Carbon::parse($request->get('startDate')),
                 'due_date' => Carbon::parse($request->get('dueDate')),
-                'work_plan_id' => $request->get('workPlanId'),
-                'intervention_id' => $request->get('interventionId'),
+                'activity_id' => $request->get('activityId'),
                 'updated_by' => $request->get('userId'),
             ]);
-            return response()->json("Activity updated!");
+            return response()->json("Stage updated!");
         } catch (Exception $ex)
         {
             return response()->json($ex->getMessage(), Response::HTTP_FORBIDDEN);

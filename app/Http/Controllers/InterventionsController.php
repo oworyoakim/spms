@@ -3,9 +3,12 @@
 namespace App\Http\Controllers;
 
 use App\Models\Intervention;
+use App\Models\Objective;
+use App\Models\Plan;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use Illuminate\Support\Collection;
 
 class InterventionsController extends Controller
 {
@@ -13,15 +16,36 @@ class InterventionsController extends Controller
     {
         try
         {
-            $builder = Intervention::query();
-            $objectiveId = $request->get('objectiveId');
-            if ($objectiveId)
+
+            $planId = $request->get('planId');
+            if ($planId)
             {
+                $plan = Plan::query()->find($planId);
+                if (!$plan)
+                {
+                    throw new Exception("Strategic plan not found!");
+                }
+                $interventions = Collection::make();
+                foreach ($plan->objectives()->get() as $objective)
+                {
+                    foreach ($objective->interventions()->get() as $intervention)
+                    {
+                        $interventions->push($intervention->getDetails());
+                    }
+                }
+            } else
+            {
+                $builder = Intervention::query();
+                $objectiveId = $request->get('objectiveId');
+                if (!$objectiveId)
+                {
+                    throw new Exception("Objective ID required!");
+                }
                 $builder->where('objective_id', $objectiveId);
+                $interventions = $builder->get()->map(function (Intervention $intervention) {
+                    return $intervention->getDetails();
+                });
             }
-            $interventions = $builder->get()->map(function (Intervention $intervention) {
-                return $intervention->getDetails();
-            });
             return response()->json($interventions);
         } catch (Exception $ex)
         {

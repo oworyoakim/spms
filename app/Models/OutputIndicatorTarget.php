@@ -45,7 +45,7 @@ class OutputIndicatorTarget extends Model
         $indicatorTarget->reportPeriodId = $this->report_period_id;
         $indicatorTarget->reportPeriod = $this->reportPeriod ? $this->reportPeriod->getDetails() : null;
         $indicatorTarget->target = $this->target;
-        $indicatorTarget->dueDate = $this->due_date->toDateTimeString();
+        $indicatorTarget->dueDate = $this->due_date->toDateString();
         $indicatorTarget->createdBy = $this->created_by;
         $indicatorTarget->updatedBy = $this->updated_by;
         $indicatorTarget->createdAt = $this->created_at->toDateTimeString();

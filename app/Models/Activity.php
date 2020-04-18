@@ -9,13 +9,15 @@ use stdClass;
  * Class Activity
  * @package App\Models
  * @property int id
- * @property int objective_id
+ * @property int work_plan_id
+ * @property int intervention_id
  * @property float completion
  * @property string title
  * @property string description
  * @property string status
  * @property Carbon start_date
  * @property Carbon due_date
+ * @property Carbon end_date
  * @property int created_by
  * @property int updated_by
  * @property Carbon created_at
@@ -25,37 +27,47 @@ use stdClass;
 class Activity extends Model
 {
     protected $table = 'activities';
-    protected $dates = ['start_date', 'due_date', 'deleted_at'];
+    protected $dates = ['start_date', 'due_date','end_date', 'deleted_at'];
 
-    public function objective()
+    public function workPlan()
     {
-        return $this->belongsTo(Objective::class, 'objective_id');
+        return $this->belongsTo(WorkPlan::class, 'work_plan_id');
     }
 
-    public function tasks()
+    public function intervention()
     {
-        return $this->hasMany(Task::class, 'activity_id');
+        return $this->belongsTo(Intervention::class, 'intervention_id');
+    }
+
+    public function stages()
+    {
+        return $this->hasMany(Stage::class, 'activity_id');
+    }
+
+    public function outputs()
+    {
+        return $this->belongsToMany(Output::class, 'activity_outputs')->withTimestamps();
     }
 
     public function getDetails()
     {
         $activity = new stdClass();
         $activity->id = $this->id;
-        $activity->objectiveId = $this->objective_id;
+        $activity->interventionId = $this->intervention_id;
+        $activity->workPlanId = $this->work_plan_id;
         $activity->title = $this->title;
         $activity->description = $this->description;
         $activity->status = $this->status;
-        $activity->startDate = $this->start_date->toDateTimeString();
-        $activity->dueDate = $this->due_date->toDateTimeString();
+        $activity->startDate = $this->start_date->toDateString();
+        $activity->dueDate = $this->due_date->toDateString();
+        $activity->endDate = ($this->end_date) ? $this->end_date->toDateString() : null;
         $activity->completion = $this->completion;
-        $activity->tasks = $this->tasks()->get()->map(function (Task $task) {
-            return $task->getDetails();
-        });
-        $activity->objective = null;
-        if ($this->objective)
-        {
-            $activity->objective = $this->objective->getDetails();
-        }
+        $activity->workPlan = ($this->workPlan) ? $this->workPlan->getDetails() : null;
+        $activity->intervention = ($this->intervention) ? $this->intervention->getDetails() : null;
+
+//        $activity->stages = $this->stages()->get()->map(function (Stage $stage) {
+//            return $stage->getDetails();
+//        });
         $activity->createdBy = $this->created_by;
         $activity->updatedBy = $this->updated_by;
         $activity->createdAt = $this->created_at->toDateTimeString();

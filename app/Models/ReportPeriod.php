@@ -32,8 +32,8 @@ class ReportPeriod extends Model
         $intervention = new stdClass();
         $intervention->id = $this->id;
         $intervention->name = $this->name;
-        $intervention->startDate = $this->start_date->toDateTimeString();
-        $intervention->endDate = $this->end_date->toDateTimeString();
+        $intervention->startDate = $this->start_date->toDateString();
+        $intervention->endDate = $this->end_date->toDateString();
         $intervention->createdAt = $this->created_at->toDateTimeString();
         $intervention->updatedAt = $this->updated_at->toDateTimeString();
         return $intervention;

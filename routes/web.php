@@ -111,10 +111,22 @@ $router->group(['prefix' => 'v1'], function () use ($router) {
         $router->put('', 'OutcomeAchievementsController@update');
     });
 
+    $router->group(['prefix' => 'work-plans'], function () use ($router) {
+        $router->get('', 'WorkPlansController@index');
+        $router->post('', 'WorkPlansController@store');
+        $router->put('', 'WorkPlansController@update');
+    });
+
     $router->group(['prefix' => 'activities'], function () use ($router) {
         $router->get('', 'ActivitiesController@index');
         $router->post('', 'ActivitiesController@store');
         $router->put('', 'ActivitiesController@update');
+    });
+
+    $router->group(['prefix' => 'stages'], function () use ($router) {
+        $router->get('', 'StagesController@index');
+        $router->post('', 'StagesController@store');
+        $router->put('', 'StagesController@update');
     });
 
     $router->group(['prefix' => 'tasks'], function () use ($router) {
