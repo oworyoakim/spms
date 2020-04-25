@@ -18,7 +18,7 @@ class CreateTasksTable extends Migration
             $table->unsignedBigInteger('work_plan_id')->index();
             $table->unsignedBigInteger('activity_id')->index();
             $table->unsignedBigInteger('stage_id')->index();
-            $table->string('name');
+            $table->string('title');
             $table->text('description')->nullable();
             $table->timestamp('start_date')->nullable();
             $table->timestamp('due_date')->nullable();

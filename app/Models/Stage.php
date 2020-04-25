@@ -47,9 +47,9 @@ class Stage extends Model
         $stage->title = $this->title;
         $stage->description = $this->description;
         $stage->status = $this->status;
-        $stage->startDate = $this->start_date->toDateTimeString();
-        $stage->dueDate = $this->due_date->toDateTimeString();
-        $stage->endDate = ($this->end_date) ? $this->end_date->toDateTimeString() : null;
+        $stage->startDate = $this->start_date->toDateString();
+        $stage->dueDate = $this->due_date->toDateString();
+        $stage->endDate = ($this->end_date) ? $this->end_date->toDateString() : null;
 //        $stage->tasks = $this->tasks()->get()->map(function (Task $task) {
 //            return $task->getDetails();
 //        });
