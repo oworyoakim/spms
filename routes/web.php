@@ -121,6 +121,9 @@ $router->group(['prefix' => 'v1'], function () use ($router) {
         $router->get('', 'ActivitiesController@index');
         $router->post('', 'ActivitiesController@store');
         $router->put('', 'ActivitiesController@update');
+        $router->patch('hold', 'ActivitiesController@hold');
+        $router->patch('unhold', 'ActivitiesController@unhold');
+        $router->patch('complete', 'ActivitiesController@complete');
     });
 
     $router->group(['prefix' => 'stages'], function () use ($router) {
@@ -133,5 +136,25 @@ $router->group(['prefix' => 'v1'], function () use ($router) {
         $router->get('', 'TasksController@index');
         $router->post('', 'TasksController@store');
         $router->put('', 'TasksController@update');
+        $router->patch('complete', 'TasksController@complete');
+    });
+
+
+    $router->group(['prefix' => 'directives_and_resolutions'], function () use ($router) {
+        $router->get('', 'DirectivesAndResolutionsController@index');
+        $router->post('', 'DirectivesAndResolutionsController@store');
+        $router->put('', 'DirectivesAndResolutionsController@update');
+    });
+
+    $router->group(['prefix' => 'directives_and_resolutions_activities'], function () use ($router) {
+        $router->get('', 'DirectivesAndResolutionsActivitiesController@index');
+        $router->post('', 'DirectivesAndResolutionsActivitiesController@store');
+        $router->put('', 'DirectivesAndResolutionsActivitiesController@update');
+    });
+
+    $router->group(['prefix' => 'directives_and_resolutions_outputs'], function () use ($router) {
+        $router->get('', 'DirectivesAndResolutionsOutputsController@index');
+        $router->post('', 'DirectivesAndResolutionsOutputsController@store');
+        $router->put('', 'DirectivesAndResolutionsOutputsController@update');
     });
 });

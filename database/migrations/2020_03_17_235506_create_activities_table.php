@@ -19,9 +19,9 @@ class CreateActivitiesTable extends Migration
             $table->text('description')->nullable();
             $table->unsignedBigInteger('work_plan_id')->index();
             $table->unsignedBigInteger('intervention_id')->index();
-            $table->timestamp('start_date');
-            $table->timestamp('due_date');
-            $table->timestamp('end_date')->nullable();
+            $table->date('start_date')->nullable();
+            $table->date('due_date');
+            $table->date('end_date')->nullable();
             $table->enum('status',['submitted','declined','approved','ongoing','onhold','completed'])->default('submitted')->index();
             $table->unsignedFloat('completion')->nullable();
             $table->unsignedBigInteger('created_by')->nullable();

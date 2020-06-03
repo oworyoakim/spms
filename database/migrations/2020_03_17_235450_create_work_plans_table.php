@@ -18,8 +18,8 @@ class CreateWorkPlansTable extends Migration
             $table->unsignedBigInteger('plan_id')->index();
             $table->string('title');
             $table->string('financial_year')->unique();
-            $table->timestamp('start_date')->nullable();
-            $table->timestamp('end_date')->nullable();
+            $table->date('start_date')->nullable();
+            $table->date('end_date')->nullable();
             $table->string('theme')->nullable();
             $table->text('description')->nullable();
             $table->enum('status',['submitted','declined','approved','ongoing','onhold','completed'])->default('submitted')->index();

@@ -19,7 +19,7 @@ class CreateOutputIndicatorTargetsTable extends Migration
             $table->unsignedBigInteger('output_indicator_id');
             $table->unsignedBigInteger('report_period_id');
             $table->unsignedFloat('target')->nullable();
-            $table->timestamp('due_date');
+            $table->date('due_date');
             $table->unsignedBigInteger('created_by')->nullable();
             $table->unsignedBigInteger('updated_by')->nullable();
             $table->timestamps();

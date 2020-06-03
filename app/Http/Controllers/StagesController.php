@@ -43,7 +43,6 @@ class StagesController extends Controller
         {
             $rules = [
                 'title' => 'required',
-                'startDate' => 'required|date',
                 'dueDate' => 'required|date',
                 'workPlanId' => 'required',
                 'activityId' => 'required',
@@ -52,7 +51,6 @@ class StagesController extends Controller
             $this->validateData($request->all(), $rules);
             Stage::query()->create([
                 'title' => $request->get('title'),
-                'start_date' => Carbon::parse($request->get('startDate')),
                 'due_date' => Carbon::parse($request->get('dueDate')),
                 'work_plan_id' => $request->get('workPlanId'),
                 'activity_id' => $request->get('activityId'),
@@ -73,7 +71,6 @@ class StagesController extends Controller
             $rules = [
                 'id' => 'required',
                 'title' => 'required',
-                'startDate' => 'required|date',
                 'dueDate' => 'required|date',
                 'activityId' => 'required',
                 'userId' => 'required',
@@ -88,7 +85,6 @@ class StagesController extends Controller
             $stage->update([
                 'title' => $request->get('title'),
                 'description' => $request->get('description'),
-                'start_date' => Carbon::parse($request->get('startDate')),
                 'due_date' => Carbon::parse($request->get('dueDate')),
                 'activity_id' => $request->get('activityId'),
                 'updated_by' => $request->get('userId'),

@@ -29,6 +29,11 @@ class Task extends Model
     protected $table = 'tasks';
     protected $dates = ['start_date', 'due_date', 'deleted_at'];
 
+    public function activity()
+    {
+        return $this->belongsTo(Activity::class, 'activity_id');
+    }
+
     public function stage()
     {
         return $this->belongsTo(Stage::class, 'stage_id');
@@ -44,7 +49,7 @@ class Task extends Model
         $task->title = $this->title;
         $task->description = $this->description;
         $task->status = $this->status;
-        $task->startDate = $this->start_date->toDateString();
+        $task->startDate = ($this->start_date) ? $this->start_date->toDateString() : null;
         $task->dueDate = $this->due_date->toDateString();
         $task->endDate = ($this->end_date) ? $this->end_date->toDateString() : null;
         $task->stage = ($this->stage) ? $this->stage->getDetails() : null;
@@ -56,4 +61,19 @@ class Task extends Model
         return $task;
     }
 
+    public function start($userId){
+        $this->update([
+            'start_date' => Carbon::now(),
+            'status' => 'ongoing',
+            'updated_by' => $userId,
+        ]);
+    }
+
+    public function complete($userId){
+        $this->update([
+            'end_date' => Carbon::now(),
+            'status' => 'completed',
+            'updated_by' => $userId,
+        ]);
+    }
 }

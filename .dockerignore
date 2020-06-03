@@ -5,3 +5,6 @@ Homestead.yaml
 .env
 .phpunit.result.cache
 docker-compose.yml
+Dockerfile
+#spms-apache.conf
+#spms-worker.conf

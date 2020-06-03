@@ -7,6 +7,7 @@ use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\DB;
 
 class TasksController extends Controller
 {
@@ -51,7 +52,6 @@ class TasksController extends Controller
         {
             $rules = [
                 'title' => 'required',
-                'startDate' => 'required|date',
                 'dueDate' => 'required|date',
                 'workPlanId' => 'required',
                 'activityId' => 'required',
@@ -61,7 +61,6 @@ class TasksController extends Controller
             $this->validateData($request->all(), $rules);
             Task::query()->create([
                 'title' => $request->get('title'),
-                'start_date' => Carbon::parse($request->get('startDate')),
                 'due_date' => Carbon::parse($request->get('dueDate')),
                 'work_plan_id' => $request->get('workPlanId'),
                 'activity_id' => $request->get('activityId'),
@@ -83,7 +82,6 @@ class TasksController extends Controller
             $rules = [
                 'id' => 'required',
                 'title' => 'required',
-                'startDate' => 'required|date',
                 'dueDate' => 'required|date',
                 'stageId' => 'required',
                 'userId' => 'required',
@@ -98,7 +96,6 @@ class TasksController extends Controller
             $task->update([
                 'title' => $request->get('title'),
                 'description' => $request->get('description'),
-                'start_date' => Carbon::parse($request->get('startDate')),
                 'due_date' => Carbon::parse($request->get('dueDate')),
                 'stage_id' => $request->get('stageId'),
                 'updated_by' => $request->get('userId'),
@@ -106,6 +103,70 @@ class TasksController extends Controller
             return response()->json("Task updated!");
         } catch (Exception $ex)
         {
+            return response()->json($ex->getMessage(), Response::HTTP_FORBIDDEN);
+        }
+    }
+
+    public function start(Request $request)
+    {
+        try
+        {
+            $rules = [
+                'id' => 'required',
+                'userId' => 'required',
+            ];
+            $this->validateData($request->all(), $rules);
+            $id = $request->get('id');
+            $userId = $request->get('userId');
+            $task = Task::query()->find($id);
+            if (!$task)
+            {
+                throw new Exception("Task with id {$id} not found!");
+            }
+
+            $activityStatus = $task->activity->status;
+            if(!in_array($activityStatus, ['approved','ongoing'])){
+                $msg = ($activityStatus == 'submitted') ? "not yet approved" : $activityStatus;
+                throw new Exception("Activity for this task is {$msg}!");
+            }
+            DB::beginTransaction();
+            $task->start($userId);
+            $task->stage->start($userId);
+            $task->activity->start($userId);
+            DB::commit();
+            return response()->json("Task started!");
+        } catch (Exception $ex)
+        {
+            DB::rollBack();
+            return response()->json($ex->getMessage(), Response::HTTP_FORBIDDEN);
+        }
+    }
+
+    public function complete(Request $request)
+    {
+        try
+        {
+            $rules = [
+                'id' => 'required',
+                'userId' => 'required',
+            ];
+            $this->validateData($request->all(), $rules);
+            $id = $request->get('id');
+            $userId = $request->get('userId');
+            $task = Task::query()->find($id);
+            if (!$task)
+            {
+                throw new Exception("Task with id {$id} not found!");
+            }
+            DB::beginTransaction();
+            $task->complete($userId);
+            $task->stage->updateStatus($userId);
+            //$task->activity->updateStatus($userId);
+            DB::commit();
+            return response()->json("Task completed!");
+        } catch (Exception $ex)
+        {
+            DB::rollBack();
             return response()->json($ex->getMessage(), Response::HTTP_FORBIDDEN);
         }
     }

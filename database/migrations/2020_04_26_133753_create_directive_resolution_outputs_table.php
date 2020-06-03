@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateTasksTable extends Migration
+class CreateDirectiveResolutionOutputsTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,17 +13,17 @@ class CreateTasksTable extends Migration
      */
     public function up()
     {
-        Schema::create('tasks', function (Blueprint $table) {
+        Schema::create('directive_resolution_outputs', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('work_plan_id')->index();
-            $table->unsignedBigInteger('activity_id')->index();
-            $table->unsignedBigInteger('stage_id')->index();
+            $table->unsignedBigInteger('directive_resolution_id');
+            $table->unsignedBigInteger('directive_resolution_activity_id');
             $table->string('title');
             $table->text('description')->nullable();
-            $table->date('start_date')->nullable();
-            $table->date('due_date')->nullable();
-            $table->date('end_date')->nullable();
-            $table->enum('status',['pending','ongoing','onhold','completed'])->default('pending')->index();
+            $table->float('target');
+            $table->float('actual')->default(0);
+            $table->enum('unit',['count','percent']);
+            $table->date('output_date_updated')->nullable();
+            $table->unsignedBigInteger('responsible_person');
             $table->unsignedBigInteger('created_by')->nullable();
             $table->unsignedBigInteger('updated_by')->nullable();
             $table->timestamps();
@@ -38,6 +38,6 @@ class CreateTasksTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('tasks');
+        Schema::dropIfExists('directive_resolution_outputs');
     }
 }

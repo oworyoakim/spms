@@ -19,9 +19,9 @@ class CreateStagesTable extends Migration
             $table->unsignedBigInteger('activity_id')->index();
             $table->string('title');
             $table->text('description')->nullable();
-            $table->timestamp('start_date')->nullable();
-            $table->timestamp('due_date')->nullable();
-            $table->timestamp('end_date')->nullable();
+            $table->date('start_date')->nullable();
+            $table->date('due_date')->nullable();
+            $table->date('end_date')->nullable();
             $table->enum('status',['pending','ongoing','onhold','completed'])->default('pending')->index();
             $table->unsignedFloat('completion')->nullable();
             $table->unsignedBigInteger('created_by')->nullable();

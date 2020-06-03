@@ -7,6 +7,7 @@ use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\DB;
 
 class ActivitiesController extends Controller
 {
@@ -17,7 +18,8 @@ class ActivitiesController extends Controller
             $builder = Activity::query();
             $interventionId = $request->get('interventionId');
             $workPlanId = $request->get('workPlanId');
-            if(!$workPlanId || !$interventionId){
+            if (!$workPlanId || !$interventionId)
+            {
                 throw new Exception("Intervention ID or Work Plan ID required!");
             }
             if ($workPlanId)
@@ -52,16 +54,14 @@ class ActivitiesController extends Controller
         {
             $rules = [
                 'title' => 'required',
-                'startDate' => 'required|date',
                 'dueDate' => 'required|date',
                 'workPlanId' => 'required',
                 'interventionId' => 'required',
                 'userId' => 'required',
             ];
-            $this->validateData($request->all(),$rules);
+            $this->validateData($request->all(), $rules);
             Activity::query()->create([
                 'title' => $request->get('title'),
-                'start_date' => Carbon::parse($request->get('startDate')),
                 'due_date' => Carbon::parse($request->get('dueDate')),
                 'work_plan_id' => $request->get('workPlanId'),
                 'intervention_id' => $request->get('interventionId'),
@@ -82,13 +82,12 @@ class ActivitiesController extends Controller
             $rules = [
                 'id' => 'required',
                 'title' => 'required',
-                'startDate' => 'required|date',
                 'dueDate' => 'required|date',
                 'interventionId' => 'required',
                 'workPlanId' => 'required',
                 'userId' => 'required',
             ];
-            $this->validateData($request->all(),$rules);
+            $this->validateData($request->all(), $rules);
             $id = $request->get('id');
             $activity = Activity::query()->find($id);
             if (!$activity)
@@ -98,13 +97,81 @@ class ActivitiesController extends Controller
             $activity->update([
                 'title' => $request->get('title'),
                 'description' => $request->get('description'),
-                'start_date' => Carbon::parse($request->get('startDate')),
                 'due_date' => Carbon::parse($request->get('dueDate')),
                 'work_plan_id' => $request->get('workPlanId'),
                 'intervention_id' => $request->get('interventionId'),
                 'updated_by' => $request->get('userId'),
             ]);
             return response()->json("Activity updated!");
+        } catch (Exception $ex)
+        {
+            return response()->json($ex->getMessage(), Response::HTTP_FORBIDDEN);
+        }
+    }
+
+    public function hold(Request $request)
+    {
+        try
+        {
+            $rules = [
+                'id' => 'required',
+                'userId' => 'required',
+            ];
+            $this->validateData($request->all(), $rules);
+
+            $id = $request->get('id');
+            $userId = $request->get('userId');
+
+            $activity = Activity::query()->where('status','ongoing')->find($id);
+            if (!$activity)
+            {
+                throw new Exception("Activity with id {$id} not found!");
+            }
+            DB::beginTransaction();
+            $activity->hold($userId);
+            DB::commit();
+            return response()->json("Activity updated!");
+        } catch (Exception $ex)
+        {
+            DB::rollBack();
+            return response()->json($ex->getMessage(), Response::HTTP_FORBIDDEN);
+        }
+    }
+
+    public function unhold(Request $request)
+    {
+        try
+        {
+            $rules = [
+                'id' => 'required',
+                'userId' => 'required',
+            ];
+            $this->validateData($request->all(), $rules);
+
+            $id = $request->get('id');
+            $userId = $request->get('userId');
+
+            $activity = Activity::query()->where('status','onhold')->find($id);
+            if (!$activity)
+            {
+                throw new Exception("Activity with id {$id} not found!");
+            }
+            DB::beginTransaction();
+            $activity->unhold($userId);
+            DB::commit();
+            return response()->json("Activity updated!");
+        } catch (Exception $ex)
+        {
+            DB::rollBack();
+            return response()->json($ex->getMessage(), Response::HTTP_FORBIDDEN);
+        }
+    }
+
+    public function complete(Request $request)
+    {
+        try
+        {
+            //TODO: implement activity completion
         } catch (Exception $ex)
         {
             return response()->json($ex->getMessage(), Response::HTTP_FORBIDDEN);

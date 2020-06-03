@@ -17,7 +17,7 @@ class CreateOutputAchievementsTable extends Migration
             $table->id();
             $table->unsignedBigInteger('objective_id');
             $table->unsignedBigInteger('output_indicator_id');
-            $table->timestamp('achievement_date');
+            $table->date('achievement_date');
             $table->unsignedFloat('actual')->nullable();
             $table->text('description')->nullable();
             $table->unsignedBigInteger('created_by')->nullable();

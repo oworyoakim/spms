@@ -17,6 +17,7 @@ use stdClass;
  * @property Carbon start_date
  * @property Carbon due_date
  * @property Carbon end_date
+ * @property float completion
  * @property int created_by
  * @property int updated_by
  * @property Carbon created_at
@@ -47,7 +48,7 @@ class Stage extends Model
         $stage->title = $this->title;
         $stage->description = $this->description;
         $stage->status = $this->status;
-        $stage->startDate = $this->start_date->toDateString();
+        $stage->startDate = ($this->start_date) ? $this->start_date->toDateString() : null;
         $stage->dueDate = $this->due_date->toDateString();
         $stage->endDate = ($this->end_date) ? $this->end_date->toDateString() : null;
 //        $stage->tasks = $this->tasks()->get()->map(function (Task $task) {
@@ -60,6 +61,34 @@ class Stage extends Model
         $stage->updatedAt = $this->updated_at->toDateTimeString();
 
         return $stage;
+    }
+
+    public function start($userId){
+        if($this->status == 'pending'){
+            $this->start_date = Carbon::now();
+            $this->status = 'ongoing';
+            $this->updated_by = $userId;
+            $this->save();
+        }
+    }
+
+    public function updateStatus($userId)
+    {
+        $tasks = $this->tasks()->get();
+        $completedTasks = $tasks->where('status', 'completed')->count();
+        $incompleteTasks = $tasks->count() - $completedTasks;
+        if ($incompleteTasks == 0)
+        {
+            $this->status = 'completed';
+            $this->completion = 100;
+            $this->end_date = Carbon::now();
+        } else
+        {
+            $percent = round(($completedTasks / $tasks->count()) * 100, 2);
+            $this->completion = $percent;
+        }
+        $this->updated_by = $userId;
+        $this->save();
     }
 
 }

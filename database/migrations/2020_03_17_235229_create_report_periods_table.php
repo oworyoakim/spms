@@ -17,8 +17,8 @@ class CreateReportPeriodsTable extends Migration
             $table->id();
             $table->unsignedBigInteger('plan_id');
             $table->string('name');
-            $table->timestamp('start_date');
-            $table->timestamp('end_date');
+            $table->date('start_date');
+            $table->date('end_date');
             $table->timestamps();
             $table->softDeletes();
         });
