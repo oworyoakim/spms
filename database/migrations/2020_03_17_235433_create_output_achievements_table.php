@@ -17,6 +17,7 @@ class CreateOutputAchievementsTable extends Migration
             $table->id();
             $table->unsignedBigInteger('objective_id');
             $table->unsignedBigInteger('output_indicator_id');
+            $table->unsignedBigInteger('report_period_id');
             $table->date('achievement_date');
             $table->unsignedFloat('actual')->nullable();
             $table->text('description')->nullable();
@@ -24,6 +25,7 @@ class CreateOutputAchievementsTable extends Migration
             $table->unsignedBigInteger('updated_by')->nullable();
             $table->timestamps();
             $table->softDeletes();
+            $table->unique(['objective_id','output_indicator_id','report_period_id'],'unique_output_achievements');
         });
     }
 

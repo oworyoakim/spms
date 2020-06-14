@@ -13,6 +13,7 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
+use stdClass;
 
 class ObjectivesController extends Controller
 {
@@ -139,4 +140,5 @@ class ObjectivesController extends Controller
             return response()->json($ex->getMessage(), Response::HTTP_FORBIDDEN);
         }
     }
+
 }

@@ -51,18 +51,6 @@ class OutputIndicator extends Model
         $indicator->name = $this->name;
         $indicator->description = $this->description;
         $indicator->unit = $this->unit;
-        /*
-        $indicator->targets = $this->targets()
-                                      ->get()
-                                      ->map(function (OutputIndicatorTarget $target) {
-                                          return $target->getDetails();
-                                      });
-        $indicator->achievements = $this->achievements()
-                                        ->get()
-                                        ->map(function (OutputAchievement $achievement) {
-                                            return $achievement->getDetails();
-                                        });
-        */
         $indicator->createdBy = $this->created_by;
         $indicator->createdAt = $this->created_at->toDateTimeString();
         $indicator->updatedBy = $this->updated_by;

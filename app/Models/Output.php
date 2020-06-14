@@ -38,7 +38,7 @@ class Output extends Model
         return $this->belongsToMany(Activity::class, 'activity_outputs')->withTimestamps();
     }
 
-    public function getDetails()
+    public function getDetails($minimal = true)
     {
         $output = new stdClass();
         $output->id = $this->id;
@@ -47,13 +47,16 @@ class Output extends Model
         $output->name = $this->name;
         $output->description = $this->description;
         $output->intervention = $this->intervention ? $this->intervention->getDetails() : null;
-        /*
-        $output->indicators = $this->indicators()
-                                   ->get()
-                                   ->map(function (OutputIndicator $indicator) {
-                                       return $indicator->getDetails();
-                                   });
-        */
+        if (!$minimal)
+        {
+
+            $output->indicators = $this->indicators()
+                                       ->get()
+                                       ->map(function (OutputIndicator $indicator) {
+                                           return $indicator->getDetails();
+                                       });
+
+        }
         $output->createdBy = $this->created_by;
         $output->updatedBy = $this->updated_by;
         $output->createdAt = $this->created_at->toDateTimeString();

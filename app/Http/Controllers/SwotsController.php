@@ -60,17 +60,17 @@ class SwotsController extends Controller
                 $swotCategory = $category->getDetails();
                 $swotCategory->swots = $opportunities;
                 if(count($swotCategory->swots)){
-                    $data[Swot::TYPE_WEAKNESSES][] = $swotCategory;
+                    $data[Swot::TYPE_OPPORTUNITIES][] = $swotCategory;
                 }
 
                 // THREATS
                 $threats = $swots->filter(function ($swot) use ($category){
-                    return $swot->type == Swot::TYPE_OPPORTUNITIES && $swot->categoryId == $category->id;
+                    return $swot->type == Swot::TYPE_THREATS && $swot->categoryId == $category->id;
                 });
                 $swotCategory = $category->getDetails();
                 $swotCategory->swots = $threats;
                 if(count($swotCategory->swots)){
-                    $data[Swot::TYPE_WEAKNESSES][] = $swotCategory;
+                    $data[Swot::TYPE_THREATS][] = $swotCategory;
                 }
             }
             /*

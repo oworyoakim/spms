@@ -36,6 +36,8 @@ $router->group(['prefix' => 'v1'], function () use ($router) {
         $router->post('', 'ObjectivesController@store');
         $router->put('', 'ObjectivesController@update');
         $router->get('show', 'ObjectivesController@show');
+        $router->get('achievements', 'OutputAchievementsController@index');
+        $router->post('achievements', 'OutputAchievementsController@store');
     });
 
     $router->group(['prefix' => 'interventions'], function () use ($router) {
@@ -85,6 +87,8 @@ $router->group(['prefix' => 'v1'], function () use ($router) {
         $router->post('', 'KeyResultAreaController@store');
         $router->put('', 'KeyResultAreaController@update');
         $router->get('show', 'KeyResultAreaController@show');
+        $router->get('achievements', 'OutcomeAchievementsController@index');
+        $router->post('achievements', 'OutcomeAchievementsController@store');
     });
 
     $router->group(['prefix' => 'outcomes'], function () use ($router) {

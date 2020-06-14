@@ -18,13 +18,15 @@ class CreateOutcomeAchievementsTable extends Migration
             $table->id();
             $table->unsignedBigInteger('key_result_area_id');
             $table->unsignedBigInteger('outcome_indicator_id');
+            $table->unsignedBigInteger('report_period_id');
             $table->date('achievement_date');
             $table->unsignedFloat('actual');
-            $table->text('description');
+            $table->text('description')->nullable();
             $table->unsignedBigInteger('created_by')->nullable();
             $table->unsignedBigInteger('updated_by')->nullable();
             $table->timestamps();
             $table->softDeletes();
+            $table->unique(['key_result_area_id','outcome_indicator_id','report_period_id'],'unique_outcome_achievements');
         });
     }
 

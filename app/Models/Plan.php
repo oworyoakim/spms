@@ -15,7 +15,7 @@ use stdClass;
  * @property string vision
  * @property string values
  * @property string frequency
- * @property string status
+ * @property string state
  * @property Carbon start_date
  * @property Carbon end_date
  * @property int created_by
@@ -87,7 +87,7 @@ class Plan extends Model
         $plan->vision = $this->vision;
         $plan->values = $this->values;
         $plan->frequency = $this->frequency;
-        $plan->status = $this->status;
+        $plan->status = $this->state;
         $plan->financialYears = $this->financialYears();
         $plan->reportPeriods = $this->reportPeriods()
                                     ->get()

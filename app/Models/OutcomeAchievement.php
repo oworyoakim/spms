@@ -11,6 +11,7 @@ use stdClass;
  * @property int id
  * @property int key_result_area_id
  * @property int outcome_indicator_id
+ * @property int report_period_id
  * @property Carbon achievement_date
  * @property float actual
  * @property string description

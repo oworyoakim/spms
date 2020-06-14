@@ -29,7 +29,7 @@ class Outcome extends Model
 
     public function indicators()
     {
-        return $this->hasMany(OutcomeIndicator::class, 'output_id');
+        return $this->hasMany(OutcomeIndicator::class, 'outcome_id');
     }
 
     public function getDetails()
