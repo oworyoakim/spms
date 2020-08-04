@@ -2,7 +2,10 @@
 
 namespace App\Models;
 
+use Exception;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Collection;
+use Illuminate\Support\Str;
 use stdClass;
 
 /**
@@ -94,6 +97,10 @@ class Plan extends Model
                                     ->map(function (ReportPeriod $period) {
                                         return $period->getDetails();
                                     });
+
+        $previousReportPeriod = $this->getPreviousReportPeriod();
+        $plan->previousReportPeriod = empty($previousReportPeriod) ? null : $previousReportPeriod->getDetails();
+
         $plan->startDate = $this->start_date->toDateString();
         $plan->endDate = $this->end_date->toDateString();
         $plan->createdBy = $this->created_by;
@@ -184,7 +191,8 @@ class Plan extends Model
         }
     }
 
-    public function financialYears(){
+    public function financialYears()
+    {
         $financialYears = [];
         $periodStartDate = $this->start_date->clone();
         while ($periodStartDate->lessThan($this->end_date))
@@ -197,4 +205,161 @@ class Plan extends Model
 
         return $financialYears;
     }
+
+    /**
+     * @return ReportPeriod|null
+     */
+    public function getPreviousReportPeriod()
+    {
+        $today = Carbon::today();
+        if ($today->lessThan($this->start_date))
+        {
+            return null;
+        }
+        $previousPeriod = null;
+        foreach ($this->reportPeriods()->orderBy('start_date')->get() as $period)
+        {
+            if ($today->isBetween($period->start_date, $period->end_date))
+            {
+                break;
+            }
+            $previousPeriod = $period;
+        }
+        return empty($previousPeriod) ? null : $previousPeriod;
+    }
+
+    /**
+     * @param $reportPeriodId
+     *
+     * @return stdClass
+     * @throws Exception
+     */
+    public function getReportData($reportPeriodId)
+    {
+        $reportPeriod = $this->reportPeriods()->find($reportPeriodId);
+
+        if (empty($reportPeriod))
+        {
+            throw new Exception("Reporting period not found!");
+
+        }
+
+        $startDate = $reportPeriod->startDate;
+        $endDate = $reportPeriod->endDate;
+        $comment = "The purpose of UNEB examinations in selection, certification and accountability cannot be over emphasized. However, this njwfew ej fewkcweje ce ewesdcvb cj eckjeset in a challenge for the Board to maintain comparable examinations stadndards over ddd time.";
+
+        $reportData = new stdClass();
+        $reportData->startDate = $startDate;
+        $reportData->endDate = $endDate;
+        $reportData->reportFrequency = $this->frequency;
+        $reportData->reportDate = Carbon::today()->toDateString();
+        $reportData->plan = $this->name;
+        $reportData->reportPeriod = $reportPeriod->getDetails();
+        $reportData->dateParams = $this->getDateParams($reportData->reportPeriod->endDate);
+
+        $reportData->objectives = Collection::make();
+        foreach ($this->objectives as $objective)
+        {
+            $strategicObjective = new stdClass();
+            $strategicObjective->name = $objective->name;
+            $strategicObjective->rank = $objective->rank;
+            // Strategic Interventions
+            $strategicObjective->interventions = Collection::make();
+            foreach ($objective->interventions as $intervention)
+            {
+                $strategicIntervention = new stdClass();
+                $strategicIntervention->name = $intervention->name;
+                $strategicIntervention->rank = $intervention->rank;
+                // Outputs
+                $strategicIntervention->outputs = Collection::make();
+                foreach ($intervention->outputs as $output)
+                {
+                    $interventionOutput = new stdClass();
+                    $interventionOutput->name = $output->name;
+                    $interventionOutput->rank = $output->rank;
+                    // Indicators
+                    $interventionOutput->indicators = Collection::make();
+                    foreach ($output->indicators as $indicator)
+                    {
+                        $outputIndicator = new stdClass();
+                        $outputIndicator->name = $indicator->name;
+                        $outputIndicator->rank = $indicator->rank;
+                        $outputIndicator->unit = $indicator->unit;
+                        // targets
+                        $target = $indicator->targets()->where('report_period_id', $reportPeriod->id)->first();
+                        $outputIndicator->target = empty($target) ? null : $target->target;
+                        // achievement
+                        $achievement = $indicator->achievements()->where('report_period_id', $reportPeriod->id)->first();
+                        $outputIndicator->actual = empty($achievement) ? null : $achievement->actual;
+
+                        //  Percentage of achievement and variance
+                        if ($outputIndicator->target && $outputIndicator->actual)
+                        {
+                            $outputIndicator->achieved = round(($outputIndicator->actual / $outputIndicator->target) * 100, 2);
+                            $outputIndicator->variance = $outputIndicator->target - $outputIndicator->actual;
+                        } else
+                        {
+                            $outputIndicator->achieved = null;
+                            $outputIndicator->variance = null;
+                        }
+                        $outputIndicator->comments = $comment;
+                        $interventionOutput->indicators->push($outputIndicator);
+                    }
+
+                    $strategicIntervention->outputs->push($interventionOutput);
+                }
+
+                $strategicObjective->interventions->push($strategicIntervention);
+            }
+
+            $reportData->objectives->push($strategicObjective);
+        }
+
+        return $reportData;
+    }
+
+
+    public function getDateParams($date)
+    {
+        $date = Carbon::parse($date);
+        if ($date->isAfter("{$date->year}-06-30"))
+        {
+            $year = $date->year + 1;
+            $fyStartDate = Carbon::parse("{$date->year}-07-01");
+            $fyEndDate = Carbon::parse("{$year}-06-30");
+        } else
+        {
+            $year = $date->year - 1;
+            $fyStartDate = Carbon::parse("{$year}-07-01");
+            $fyEndDate = Carbon::parse("{$date->year}-06-30");
+        }
+        $fYear = "{$fyStartDate->year}/{$fyEndDate->year}";
+        $params = new stdClass();
+        $params->financialYear = $fYear;
+        $params->financialYearStartDate = $fyStartDate->toDateString();
+        $params->financialYearEndDate = $fyEndDate->toDateString();
+        $quarters = [];
+        $currentDate = $fyStartDate->clone();
+        $qIndex = 0;
+        while ($currentDate->lessThan($fyEndDate))
+        {
+            $quarter = new stdClass();
+            $quarter->startDate = $currentDate->toDateString();
+            $quarter->name = "Q" . (++$qIndex);
+            $currentDate = $currentDate->addMonths(3)->subDays(1);
+            $quarter->endDate = $currentDate->toDateString();
+            $quarter->isCurrent = $date->between($quarter->startDate, $quarter->endDate);
+            $quarters[] = $quarter;
+            if ($quarter->isCurrent)
+            {
+                $params->currentQuarter = $quarter;
+            }
+            $currentDate = $currentDate->addDays(1);
+        }
+
+        $params->quarters = $quarters;
+
+        return $params;
+    }
+
 }

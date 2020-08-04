@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Traits\Commentable;
 use Illuminate\Support\Carbon;
 use stdClass;
 
@@ -26,6 +27,8 @@ use stdClass;
  */
 class DirectiveResolutionOutput extends Model
 {
+    use Commentable;
+
     protected $table = 'directive_resolution_outputs';
 
     protected $dates = ['deleted_at'];
@@ -40,25 +43,31 @@ class DirectiveResolutionOutput extends Model
         return $this->belongsTo(DirectiveResolutionActivity::class, 'directive_resolution_activity_id');
     }
 
-    public function getDetails()
+    public function getDetails($expanded = false)
     {
         $output = new stdClass();
         $output->id = $this->id;
-        $output->directiveResolutionId = $this->directive_resolution_id;
-        $output->directiveResolutionActivityId = $this->directive_resolution_activity_id;
+        $output->directiveAndResolutionId = $this->directive_resolution_id;
+        $output->dirAndResActivityId = $this->directive_resolution_activity_id;
         $output->target = $this->target;
-        $output->actual = $this->actual;
+        $output->actual = $this->actual ?: '';
         $output->unit = $this->unit;
         $output->title = $this->title;
         $output->description = $this->description;
-        $output->directiveResolution = ($this->directiveResolution) ? $this->directiveResolution->getDetails() : null;
-        $output->activity = ($this->activity) ? $this->activity->getDetails() : null;
+        $output->directiveAndResolution = null;
+        $output->activity = null;
+        $output->comment = '';
         $output->responsiblePerson = $this->responsible_person;
         $output->outputDateUpdated = ($this->output_date_updated) ? $this->output_date_updated->toDateString() : null;
         $output->createdBy = $this->created_by;
         $output->updatedBy = $this->updated_by;
         $output->createdAt = $this->created_at->toDateTimeString();
         $output->updatedAt = $this->updated_at->toDateTimeString();
+        if ($expanded)
+        {
+            $output->directiveResolution = ($this->directiveResolution) ? $this->directiveResolution->getDetails() : null;
+            $output->dirAndResActivity = ($this->activity) ? $this->activity->getDetails() : null;
+        }
 
         return $output;
     }

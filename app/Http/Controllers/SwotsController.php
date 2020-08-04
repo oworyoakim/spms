@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Validator;
+use stdClass;
 
 class SwotsController extends Controller
 {
@@ -26,77 +27,26 @@ class SwotsController extends Controller
             $swots = $builder->get()->map(function (Swot $swot) {
                 return $swot->getDetails();
             });
-            $data = [];
-            $data[Swot::TYPE_STRENGTHS] = [];
-            $data[Swot::TYPE_WEAKNESSES] = [];
-            $data[Swot::TYPE_OPPORTUNITIES] = [];
-            $data[Swot::TYPE_THREATS] = [];
 
-            foreach (SwotCategory::all() as $category){
-                // STRENGTHS
-                $strengths = $swots->filter(function ($swot) use ($category){
-                    return $swot->type == Swot::TYPE_STRENGTHS && $swot->categoryId == $category->id;
-                });
-                $swotCategory = $category->getDetails();
-                $swotCategory->swots = $strengths;
-                if(count($swotCategory->swots)){
-                    $data[Swot::TYPE_STRENGTHS][] = $swotCategory;
-                }
+            $data = new stdClass();
+            $data->{Swot::TYPE_STRENGTHS} = null;
+            $data->{Swot::TYPE_WEAKNESSES} = null;
+            $data->{Swot::TYPE_OPPORTUNITIES} = null;
+            $data->{Swot::TYPE_THREATS} = null;
 
-                // WEAKNESSES
-                $weaknesses = $swots->filter(function ($swot) use ($category){
-                    return $swot->type == Swot::TYPE_WEAKNESSES && $swot->categoryId == $category->id;
-                });
-                $swotCategory = $category->getDetails();
-                $swotCategory->swots = $weaknesses;
-                if(count($swotCategory->swots)){
-                    $data[Swot::TYPE_WEAKNESSES][] = $swotCategory;
-                }
-
-                // OPPORTUNITIES
-                $opportunities = $swots->filter(function ($swot) use ($category){
-                    return $swot->type == Swot::TYPE_OPPORTUNITIES && $swot->categoryId == $category->id;
-                });
-                $swotCategory = $category->getDetails();
-                $swotCategory->swots = $opportunities;
-                if(count($swotCategory->swots)){
-                    $data[Swot::TYPE_OPPORTUNITIES][] = $swotCategory;
-                }
-
-                // THREATS
-                $threats = $swots->filter(function ($swot) use ($category){
-                    return $swot->type == Swot::TYPE_THREATS && $swot->categoryId == $category->id;
-                });
-                $swotCategory = $category->getDetails();
-                $swotCategory->swots = $threats;
-                if(count($swotCategory->swots)){
-                    $data[Swot::TYPE_THREATS][] = $swotCategory;
-                }
+            if($item = $swots->firstWhere('type',Swot::TYPE_STRENGTHS)){
+                $data->{Swot::TYPE_STRENGTHS} = $item;
             }
-            /*
-            $categoryId = $request->get('categoryId');
-            if ($categoryId)
-            {
-                $builder->where('category_id', $categoryId);
+            if($item = $swots->firstWhere('type',Swot::TYPE_WEAKNESSES)){
+                $data->{Swot::TYPE_WEAKNESSES} = $item;
+            }
+            if($item = $swots->firstWhere('type',Swot::TYPE_OPPORTUNITIES)){
+                $data->{Swot::TYPE_OPPORTUNITIES} = $item;
             }
 
-            $type = $request->get('type');
-            if ($type)
-            {
-                $builder->where('type', $type);
+            if($item = $swots->firstWhere('type',Swot::TYPE_THREATS)){
+                $data->{Swot::TYPE_THREATS} = $item;
             }
-
-            $swots = $builder->get()
-                             ->map(function (Swot $swot) {
-                                 return $swot->getDetails();
-                             })
-                             ->groupBy('type')
-                             ->map(function (Collection $swots) {
-                                 return $swots->groupBy('categoryId')->map(function (Swot $item){
-
-                                 });
-                             });
-            */
             return response()->json($data);
         } catch (Exception $ex)
         {
@@ -109,19 +59,23 @@ class SwotsController extends Controller
         try
         {
             $rules = [
-                'name' => 'required',
                 'type' => 'required',
+                'description' => 'required',
                 'planId' => 'required',
-                'categoryId' => 'required',
                 'userId' => 'required',
             ];
+            $planId = $request->get('planId');
+            $type = $request->get('type');
             $this->validateData($request->all(), $rules);
+            $someSwot = Swot::query()->where('type', $type)->where('plan_id', $planId)->first();
+            if ($someSwot)
+            {
+                return response()->json("Swot of type {$type} already exists for this strategic plan!", Response::HTTP_FORBIDDEN);
+            }
             Swot::query()->create([
-                'name' => $request->get('name'),
-                'plan_id' => $request->get('planId'),
-                'category_id' => $request->get('categoryId'),
+                'plan_id' => $planId,
                 'created_by' => $request->get('userId'),
-                'type' => $request->get('type'),
+                'type' => $type,
                 'description' => $request->get('description'),
             ]);
             return response()->json("Swot Created!");
@@ -137,9 +91,7 @@ class SwotsController extends Controller
         {
             $rules = [
                 'id' => 'required',
-                'name' => 'required',
-                'type' => 'required',
-                'categoryId' => 'required',
+                'description' => 'required',
                 'userId' => 'required',
             ];
             $this->validateData($request->all(), $rules);
@@ -150,9 +102,6 @@ class SwotsController extends Controller
                 throw new Exception("Swot with id {$id} not found!");
             }
             $swot->update([
-                'name' => $request->get('name'),
-                'category_id' => $request->get('categoryId'),
-                'type' => $request->get('type'),
                 'description' => $request->get('description'),
                 'updated_by' => $request->get('userId'),
             ]);

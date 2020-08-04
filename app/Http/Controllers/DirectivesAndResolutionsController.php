@@ -39,22 +39,34 @@ class DirectivesAndResolutionsController extends Controller
         {
             $rules = [
                 'title' => 'required',
-                'rank' => 'required',
+                'description' => 'required',
                 'workPlanId' => 'required',
-                'responsibilityCentre' => 'required',
+                'responsibilityCentreId' => 'required',
                 'type' => 'required',
                 'sourceType' => 'required',
+                'dateReceived' => 'required',
+                'deadline' => 'required',
                 'userId' => 'required',
             ];
             $this->validateData($request->all(), $rules);
-            Objective::query()->create([
-                'name' => $request->get('name'),
-                'rank' => $request->get('rank'),
-                'plan_id' => $request->get('planId'),
+            $type = $request->get('type');
+            DirectiveResolution::query()->create([
+                'title' => $request->get('title'),
+                'type' => $type,
                 'description' => $request->get('description'),
+                'work_plan_id' => $request->get('workPlanId'),
+                'responsibility_centre' => $request->get('responsibilityCentreId'),
+                'date_received' => Carbon::parse($request->get('dateReceived')),
+                'deadline' => Carbon::parse($request->get('deadline')),
+                'source_type' => $request->get('sourceType'),
+                'source_organization' => $request->get('sourceOrganization'),
+                'source_office' => $request->get('sourceOffice'),
+                'source_officer' => $request->get('sourceOfficer'),
+                'source_telephone' => $request->get('sourceTelephone'),
+                'source_email' => $request->get('sourceEmail'),
                 'created_by' => $request->get('userId'),
             ]);
-            return response()->json("Strategic objective created!");
+            return response()->json(ucfirst($type) ." created!");
         } catch (Exception $ex)
         {
             return response()->json($ex->getMessage(), Response::HTTP_FORBIDDEN);
@@ -67,75 +79,43 @@ class DirectivesAndResolutionsController extends Controller
         {
             $rules = [
                 'id' => 'required',
-                'name' => 'required',
-                'rank' => 'required',
+                'title' => 'required',
+                'description' => 'required',
+                'responsibilityCentreId' => 'required',
+                'type' => 'required',
+                'sourceType' => 'required',
+                'dateReceived' => 'required',
+                'deadline' => 'required',
                 'userId' => 'required',
             ];
             $this->validateData($request->all(), $rules);
             $id = $request->get('id');
-            $objective = Objective::query()->find($id);
-            if (!$objective)
+            $directiveResolution = DirectiveResolution::query()->find($id);
+            if (!$directiveResolution)
             {
-                throw new Exception("Strategic objective with id {$id} not found!");
+                throw new Exception("Directive or resolution with id {$id} not found!");
             }
-            $objective->update([
-                'name' => $request->get('name'),
-                'rank' => $request->get('rank'),
+            $type = $request->get('type');
+            $directiveResolution->update([
+                'title' => $request->get('title'),
+                'type' => $type,
                 'description' => $request->get('description'),
+                'responsibility_centre' => $request->get('responsibilityCentreId'),
+                'date_received' => Carbon::parse($request->get('dateReceived')),
+                'deadline' => Carbon::parse($request->get('deadline')),
+                'source_type' => $request->get('sourceType'),
+                'source_organization' => $request->get('sourceOrganization'),
+                'source_office' => $request->get('sourceOffice'),
+                'source_officer' => $request->get('sourceOfficer'),
+                'source_telephone' => $request->get('sourceTelephone'),
+                'source_email' => $request->get('sourceEmail'),
                 'updated_by' => $request->get('userId'),
             ]);
-            return response()->json("Strategic objective updated!");
+            return response()->json(ucfirst($type) ." updated!");
         } catch (Exception $ex)
         {
             return response()->json($ex->getMessage(), Response::HTTP_FORBIDDEN);
         }
     }
-
-    public function show(Request $request)
-    {
-        try
-        {
-            $objectiveId = $request->get('objectiveId');
-            if (!$objectiveId)
-            {
-                throw new Exception("Strategic objective id required!");
-            }
-            $obj = Objective::query()->find($objectiveId);
-            if (!$obj)
-            {
-                throw new Exception("Strategic objective not found!");
-            }
-            $objective = $obj->getDetails();
-
-            $objective->interventions = $obj->interventions()
-                                            ->get()
-                                            ->map(function (Intervention $intervention) {
-                                                return $intervention->getDetails();
-                                            });
-            $objective->outputs = $obj->outputs()
-                                      ->get()
-                                      ->map(function (Output $output) {
-                                          return $output->getDetails();
-                                      });
-            $objective->indicators = $obj->indicators()
-                                         ->get()
-                                         ->map(function (OutputIndicator $indicator) {
-                                             return $indicator->getDetails();
-                                         });
-            $objective->targets = $obj->targets()
-                                      ->get()
-                                      ->map(function (OutputIndicatorTarget $target) {
-                                          return $target->getDetails();
-                                      });
-            $objective->achievements = $obj->achievements()
-                                           ->get()
-                                           ->map(function (OutputAchievement $achievement) {
-                                               return $achievement->getDetails();
-                                           });
-            return response()->json($objective);
-        } catch (Exception $ex)
-        {
-            return response()->json($ex->getMessage(), Response::HTTP_FORBIDDEN);
-        }
-    }
+    
 }

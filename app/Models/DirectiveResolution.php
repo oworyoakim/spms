@@ -2,7 +2,9 @@
 
 namespace App\Models;
 
+use Exception;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Collection;
 use stdClass;
 
 /**
@@ -56,7 +58,8 @@ class DirectiveResolution extends Model
         $directiveResolution->id = $this->id;
         $directiveResolution->title = $this->title;
         $directiveResolution->description = $this->description;
-        $directiveResolution->responsibliltyCentre = $this->responsibility_centre;
+        $directiveResolution->responsibilityCentreId = $this->responsibility_centre;
+        $directiveResolution->responsibilityCentre = null;
         $directiveResolution->type = $this->type;
         $directiveResolution->sourceType = $this->source_type;
         $directiveResolution->sourceOrganization = $this->source_organization;
@@ -75,5 +78,52 @@ class DirectiveResolution extends Model
         $directiveResolution->updatedAt = $this->updated_at->toDateTimeString();
 
         return $directiveResolution;
+    }
+
+    /**
+     * @return stdClass
+     * @throws Exception
+     */
+    public function generateReport()
+    {
+        $reportData = new stdClass();
+        $reportData->title = $this->title;
+        $reportData->reportDate = Carbon::today()->toDateString();
+        $reportData->workPlan = ($this->workPlan) ? $this->workPlan->getDetails() : null;
+        //$reportData->reportPeriod = $reportPeriod->getDetails();
+
+        $reportData->activities = Collection::make();
+        foreach ($this->activities()->get() as $activity)
+        {
+            $dirAndResActivity = new stdClass();
+            $dirAndResActivity->title = $activity->title;
+            $dirAndResActivity->status = $activity->status;
+            // Outputs
+            $dirAndResActivity->outputs = Collection::make();
+            foreach ($activity->outputs as $output)
+            {
+                $dirAndResActivityOutput = new stdClass();
+                $dirAndResActivityOutput->title = $output->title;
+                $dirAndResActivityOutput->unit = $output->unit;
+                $dirAndResActivityOutput->target = empty($output->target) ? null : $output->target;
+                $dirAndResActivityOutput->actual = empty($output->actual) ? null : $output->actual;
+                //  Percentage of achievement and variance
+                if ($dirAndResActivityOutput->target && $dirAndResActivityOutput->actual)
+                {
+                    $dirAndResActivityOutput->achieved = round(($dirAndResActivityOutput->actual / $dirAndResActivityOutput->target) * 100, 2);
+                    $dirAndResActivityOutput->variance = $dirAndResActivityOutput->target - $dirAndResActivityOutput->actual;
+                } else
+                {
+                    $dirAndResActivityOutput->achieved = null;
+                    $dirAndResActivityOutput->variance = null;
+                }
+                $dirAndResActivityOutput->comments = $output->comments()->pluck('body')->implode("\n");
+                $dirAndResActivity->outputs->push($dirAndResActivityOutput);
+            }
+
+            $reportData->activities->push($dirAndResActivity);
+        }
+
+        return $reportData;
     }
 }

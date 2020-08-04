@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Carbon;
 use stdClass;
 
@@ -26,14 +27,14 @@ use stdClass;
 class DirectiveResolutionActivity extends Model
 {
     protected $table = 'directive_resolution_activities';
-    protected $dates = ['start_date', 'due_date','end_date', 'deleted_at'];
+    protected $dates = ['start_date', 'due_date', 'end_date', 'deleted_at'];
 
     public function workPlan()
     {
         return $this->belongsTo(WorkPlan::class, 'work_plan_id');
     }
 
-    public function directiveResolution()
+    public function directiveAndResolution()
     {
         return $this->belongsTo(DirectiveResolution::class, 'directive_resolution_id');
     }
@@ -43,28 +44,77 @@ class DirectiveResolutionActivity extends Model
         return $this->hasMany(DirectiveResolutionOutput::class, 'directive_resolution_activity_id');
     }
 
-    public function getDetails()
+    public function scopeSubmitted(Builder $builder)
+    {
+        return $builder->where('status', 'submitted');
+    }
+
+    public function scopeDeclined(Builder $builder)
+    {
+        return $builder->where('status', 'declined');
+    }
+
+    public function scopeApproved(Builder $builder)
+    {
+        return $builder->where('status', 'approved');
+    }
+
+    public function scopeOngoing(Builder $builder)
+    {
+        return $builder->where('status', 'ongoing');
+    }
+
+    public function scopeOnhold(Builder $builder)
+    {
+        return $builder->where('status', 'onhold');
+    }
+
+    public function scopeCompleted(Builder $builder)
+    {
+        return $builder->where('status', 'completed');
+    }
+
+    public function getDetails($expanded = false)
     {
         $activity = new stdClass();
         $activity->id = $this->id;
         $activity->workPlanId = $this->work_plan_id;
+        $activity->directiveAndResolutionId = $this->directive_resolution_id;
         $activity->title = $this->title;
         $activity->description = $this->description;
         $activity->status = $this->status;
-        $activity->startDate = $this->start_date->toDateString();
+        $activity->startDate = !empty($this->start_date) ? $this->start_date->toDateString() : '';
         $activity->dueDate = $this->due_date->toDateString();
         $activity->endDate = ($this->end_date) ? $this->end_date->toDateString() : null;
-        $activity->workPlan = ($this->workPlan) ? $this->workPlan->getDetails() : null;
-        $activity->directiveResolution = ($this->directiveResolution) ? $this->directiveResolution->getDetails() : null;
-
-        $activity->outputs = $this->outputs()->get()->map(function (DirectiveResolutionOutput $output) {
-            return $output->getDetails();
-        });
+        $activity->outputs = [];
+        $activity->workPlan = null;
+        $activity->directiveAndResolution = null;
+        if ($expanded)
+        {
+            $activity->outputs = $this->outputs()->get()->map(function (DirectiveResolutionOutput $output) use ($expanded) {
+                return $output->getDetails(!$expanded);
+            });
+            if ($this->workPlan)
+            {
+                $activity->workPlan = $this->workPlan->getDetails();
+            }
+            if ($this->directiveAndResolution)
+            {
+                $activity->directiveAndResolution = $this->directiveAndResolution->getDetails();
+            }
+        }
 
         $activity->createdBy = $this->created_by;
         $activity->updatedBy = $this->updated_by;
         $activity->createdAt = $this->created_at->toDateTimeString();
         $activity->updatedAt = $this->updated_at->toDateTimeString();
+        $activity->canBeApproved = $this->status == 'submitted';
+        $activity->canBeDeclined = $this->status == 'submitted';
+        $activity->canBeStarted = $this->status == 'approved';
+        $activity->canBeHeld = $this->status == 'ongoing';
+        $activity->canBeResumed = $this->status == 'onhold';
+        $activity->canBeCompleted = $this->status == 'ongoing';
+        $activity->canBeEdited = $this->status == 'submitted';
         return $activity;
     }
 }

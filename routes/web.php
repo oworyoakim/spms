@@ -25,6 +25,11 @@ $router->get('/', function () use ($router) {
 $router->group(['prefix' => 'v1'], function () use ($router) {
     $router->get('user', 'AccountController@getUser');
 
+    $router->group(['prefix' => 'reports'], function () use ($router) {
+        $router->get('strategy-report', 'ReportsController@strategyReport');
+        $router->get('directives-and-resolutions-report', 'ReportsController@directivesAndResolutionsReport');
+    });
+
     $router->group(['prefix' => 'plans'], function () use ($router) {
         $router->get('', 'PlansController@index');
         $router->post('', 'PlansController@store');
@@ -144,19 +149,35 @@ $router->group(['prefix' => 'v1'], function () use ($router) {
     });
 
 
-    $router->group(['prefix' => 'directives_and_resolutions'], function () use ($router) {
+    $router->group(['prefix' => 'directives-and-resolutions'], function () use ($router) {
         $router->get('', 'DirectivesAndResolutionsController@index');
         $router->post('', 'DirectivesAndResolutionsController@store');
         $router->put('', 'DirectivesAndResolutionsController@update');
+
+        // activities
+        $router->group(['prefix' => 'activities'], function () use ($router) {
+            $router->get('', 'DirAndResActivitiesController@index');
+            $router->post('', 'DirAndResActivitiesController@store');
+            $router->put('', 'DirAndResActivitiesController@update');
+            $router->patch('', 'DirAndResActivitiesController@updateStatus');
+            $router->patch('complete', 'DirAndResActivitiesController@complete');
+        });
+
+        // outputs
+        $router->group(['prefix' => 'outputs'], function () use ($router) {
+            $router->get('', 'DirAndResActivityOutputsController@index');
+            $router->post('', 'DirAndResActivityOutputsController@store');
+            $router->put('', 'DirAndResActivityOutputsController@update');
+        });
     });
 
-    $router->group(['prefix' => 'directives_and_resolutions_activities'], function () use ($router) {
+    $router->group(['prefix' => 'directives-and-resolutions-activities'], function () use ($router) {
         $router->get('', 'DirectivesAndResolutionsActivitiesController@index');
         $router->post('', 'DirectivesAndResolutionsActivitiesController@store');
         $router->put('', 'DirectivesAndResolutionsActivitiesController@update');
     });
 
-    $router->group(['prefix' => 'directives_and_resolutions_outputs'], function () use ($router) {
+    $router->group(['prefix' => 'directives-and-resolutions-outputs'], function () use ($router) {
         $router->get('', 'DirectivesAndResolutionsOutputsController@index');
         $router->post('', 'DirectivesAndResolutionsOutputsController@store');
         $router->put('', 'DirectivesAndResolutionsOutputsController@update');

@@ -20,7 +20,7 @@ class CreateDirectiveResolutionOutputsTable extends Migration
             $table->string('title');
             $table->text('description')->nullable();
             $table->float('target');
-            $table->float('actual')->default(0);
+            $table->float('actual')->nullable();
             $table->enum('unit',['count','percent']);
             $table->date('output_date_updated')->nullable();
             $table->unsignedBigInteger('responsible_person');

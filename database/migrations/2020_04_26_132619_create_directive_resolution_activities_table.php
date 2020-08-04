@@ -19,7 +19,7 @@ class CreateDirectiveResolutionActivitiesTable extends Migration
             $table->unsignedBigInteger('directive_resolution_id');
             $table->string('title');
             $table->text('description')->nullable();
-            $table->date('start_date');
+            $table->date('start_date')->nullable();
             $table->date('due_date');
             $table->date('end_date')->nullable();
             $table->enum('status',['submitted','declined','approved','ongoing','onhold','completed'])->default('submitted')->index();

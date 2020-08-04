@@ -60,21 +60,21 @@ class Swot extends Model
     {
         $swot = new stdClass();
         $swot->id = $this->id;
-        $swot->name = $this->name;
+        //$swot->name = $this->name;
         $swot->description = $this->description;
         $swot->type = $this->type;
         $swot->createdBy = $this->created_by;
         $swot->updatedBy = $this->updated_by;
         $swot->planId = $this->plan_id;
-        $swot->categoryId = $this->category_id;
-        $swot->category = null;
-        if ($this->category)
-        {
-            $swot->category = new stdClass();
-            $swot->category->id = $this->category_id;
-            $swot->category->name = $this->category->name;
-            $swot->category->description = $this->category->description;
-        }
+        //$swot->categoryId = $this->category_id;
+        //$swot->category = null;
+//        if ($this->category)
+//        {
+//            $swot->category = new stdClass();
+//            $swot->category->id = $this->category_id;
+//            $swot->category->name = $this->category->name;
+//            $swot->category->description = $this->category->description;
+//        }
         $swot->createdAt = $this->created_at->toDateTimeString();
         $swot->updatedAt = $this->updated_at->toDateTimeString();
         return $swot;
