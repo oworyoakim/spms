@@ -11,6 +11,9 @@ use stdClass;
  * @property int id
  * @property int work_plan_id
  * @property int intervention_id
+ * @property int department_id
+ * @property int team_leader_id
+ * @property string quarter
  * @property float completion
  * @property string title
  * @property string description
@@ -51,7 +54,7 @@ class Activity extends Model
 
     public function outputs()
     {
-        return $this->belongsToMany(Output::class, 'activity_outputs')->withTimestamps();
+        return $this->hasMany(Output::class, 'activity_id');
     }
 
     public function getDetails()
@@ -59,9 +62,12 @@ class Activity extends Model
         $activity = new stdClass();
         $activity->id = $this->id;
         $activity->interventionId = $this->intervention_id;
+        $activity->departmentId = $this->department_id;
+        $activity->teamLeaderId = $this->team_leader_id;
         $activity->workPlanId = $this->work_plan_id;
         $activity->title = $this->title;
         $activity->description = $this->description;
+        $activity->quarter = $this->quarter;
         $activity->status = $this->status;
         $activity->startDate = ($this->start_date) ? $this->start_date->toDateString() : null;
         $activity->dueDate = $this->due_date->toDateString();

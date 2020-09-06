@@ -29,6 +29,7 @@ class OutputAchievementsController extends Controller
             }
             $outputs = Output::query()
                              ->where('objective_id', $objectiveId)
+                             ->whereNull('activity_id')
                              ->get()
                              ->map(function (Output $item) use ($reportPeriodId) {
                                  $output = new stdClass();

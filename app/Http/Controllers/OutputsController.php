@@ -16,9 +16,14 @@ class OutputsController extends Controller
         {
             $builder = Output::query();
             $interventionId = $request->get('interventionId');
+            $activityId = $request->get('activityId');
             if ($interventionId)
             {
                 $builder->where('intervention_id', $interventionId);
+            }
+            if ($activityId)
+            {
+                $builder->where('activity_id', $activityId);
             }
             $outputs = $builder->get()->map(function (Output $output) {
                 return $output->getDetails();
@@ -46,6 +51,7 @@ class OutputsController extends Controller
                 'intervention_id' => $request->get('interventionId'),
                 'objective_id' => $request->get('objectiveId'),
                 'description' => $request->get('description'),
+                'activity_id' => $request->get('activityId'),
                 'created_by' => $request->get('userId'),
             ]);
             return response()->json("Output created!");

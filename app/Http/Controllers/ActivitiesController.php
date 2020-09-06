@@ -17,6 +17,7 @@ class ActivitiesController extends Controller
         {
             $builder = Activity::query();
             $interventionId = $request->get('interventionId');
+            $departmentId = $request->get('departmentId');
             $workPlanId = $request->get('workPlanId');
             if (!$workPlanId || !$interventionId)
             {
@@ -57,6 +58,9 @@ class ActivitiesController extends Controller
                 'dueDate' => 'required|date',
                 'workPlanId' => 'required',
                 'interventionId' => 'required',
+                'departmentId' => 'required',
+                'teamLeaderId' => 'required',
+                'quarter' => 'required',
                 'userId' => 'required',
             ];
             $this->validateData($request->all(), $rules);
@@ -65,6 +69,9 @@ class ActivitiesController extends Controller
                 'due_date' => Carbon::parse($request->get('dueDate')),
                 'work_plan_id' => $request->get('workPlanId'),
                 'intervention_id' => $request->get('interventionId'),
+                'department_id' => $request->get('departmentId'),
+                'team_leader_id' => $request->get('teamLeaderId'),
+                'quarter' => $request->get('quarter'),
                 'description' => $request->get('description'),
                 'created_by' => $request->get('userId'),
             ]);
@@ -84,6 +91,9 @@ class ActivitiesController extends Controller
                 'title' => 'required',
                 'dueDate' => 'required|date',
                 'interventionId' => 'required',
+                'departmentId' => 'required',
+                'teamLeaderId' => 'required',
+                'quarter' => 'required',
                 'workPlanId' => 'required',
                 'userId' => 'required',
             ];
@@ -98,8 +108,6 @@ class ActivitiesController extends Controller
                 'title' => $request->get('title'),
                 'description' => $request->get('description'),
                 'due_date' => Carbon::parse($request->get('dueDate')),
-                'work_plan_id' => $request->get('workPlanId'),
-                'intervention_id' => $request->get('interventionId'),
                 'updated_by' => $request->get('userId'),
             ]);
             return response()->json("Activity updated!");

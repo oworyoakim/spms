@@ -13,6 +13,7 @@ use stdClass;
  * @property string description
  * @property int objective_id
  * @property int intervention_id
+ * @property int activity_id
  * @property int created_by
  * @property int updated_by
  * @property Carbon created_at
@@ -33,9 +34,9 @@ class Output extends Model
         return $this->hasMany(OutputIndicator::class, 'output_id');
     }
 
-    public function activities()
+    public function activity()
     {
-        return $this->belongsToMany(Activity::class, 'activity_outputs')->withTimestamps();
+        return $this->belongsTo(Activity::class, 'activity_id');
     }
 
     public function getDetails($minimal = true)
@@ -44,9 +45,11 @@ class Output extends Model
         $output->id = $this->id;
         $output->objectiveId = $this->objective_id;
         $output->interventionId = $this->intervention_id;
+        $output->activityId = $this->activity_id;
         $output->name = $this->name;
         $output->description = $this->description;
         $output->intervention = $this->intervention ? $this->intervention->getDetails() : null;
+        $output->activity = $this->activity ? $this->activity->getDetails() : null;
         if (!$minimal)
         {
 
