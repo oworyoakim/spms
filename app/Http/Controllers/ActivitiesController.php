@@ -3,6 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Models\Activity;
+use App\Models\Output;
+use App\Models\OutputAchievement;
+use App\Models\OutputIndicator;
+use App\Models\OutputIndicatorTarget;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
@@ -130,7 +134,7 @@ class ActivitiesController extends Controller
             $id = $request->get('id');
             $userId = $request->get('userId');
 
-            $activity = Activity::query()->where('status','ongoing')->find($id);
+            $activity = Activity::query()->where('status', 'ongoing')->find($id);
             if (!$activity)
             {
                 throw new Exception("Activity with id {$id} not found!");
@@ -159,7 +163,7 @@ class ActivitiesController extends Controller
             $id = $request->get('id');
             $userId = $request->get('userId');
 
-            $activity = Activity::query()->where('status','onhold')->find($id);
+            $activity = Activity::query()->where('status', 'onhold')->find($id);
             if (!$activity)
             {
                 throw new Exception("Activity with id {$id} not found!");
@@ -182,6 +186,115 @@ class ActivitiesController extends Controller
             //TODO: implement activity completion
         } catch (Exception $ex)
         {
+            return response()->json($ex->getMessage(), Response::HTTP_FORBIDDEN);
+        }
+    }
+
+    public function performance(Request $request)
+    {
+        try
+        {
+            $builder = Output::query();
+            $activityId = $request->get('activityId');
+            $reportPeriodId = $request->get('reportPeriodId');
+
+            if (!$activityId)
+            {
+                throw new Exception("Activity ID required!");
+            }
+            if (!$reportPeriodId)
+            {
+                throw new Exception("Report period required!");
+            }
+
+            $builder->where('activity_id', $activityId);
+
+            $outputs = $builder->get()->map(function (Output $activityOutput) use ($reportPeriodId) {
+                $output = $activityOutput->getDetails();
+                $output->indicators = $activityOutput->indicators()->get()->map(function (OutputIndicator $outputIndicator) use ($reportPeriodId) {
+                    $indicator = $outputIndicator->getDetails();
+                    $indicator->reportPeriodId = $reportPeriodId;
+                    $target = $outputIndicator->targets()->where('report_period_id', $reportPeriodId)->first();
+                    $indicator->target = !empty($target) ? "{$target->target}" : "";
+                    $achievement = $outputIndicator->achievements()->where('report_period_id', $reportPeriodId)->first();
+                    $indicator->achievement = !empty($achievement) ? "{$achievement->actual}" : "";
+                    //$indicator->variance = $indicator->achievement - $indicator->target;
+                    return $indicator;
+                });
+                return $output;
+            });
+            return response()->json($outputs);
+        } catch (Exception $ex)
+        {
+            return response()->json($ex->getMessage(), Response::HTTP_FORBIDDEN);
+        }
+    }
+
+    public function updatePerformance(Request $request)
+    {
+        try
+        {
+            $performanceOutputs = $request->get('performance');
+            $userId = $request->get('userId');
+            $reportPeriodId = $request->get('reportPeriodId');
+
+            DB::beginTransaction();
+            foreach ($performanceOutputs as $output)
+            {
+                $activity = $output['activity'];
+
+                foreach ($output['indicators'] as $indicator)
+                {
+                    // we cannot register an achievement with prior targets
+                    if (!is_null($indicator['achievement']) && is_null($indicator['target']))
+                    {
+                        throw new Exception("No targets were set for some indicators!");
+                    }
+                    // if we have a target
+                    if (!is_null($indicator['target']))
+                    {
+                        $indicatorTarget = OutputIndicatorTarget::query()->firstOrNew([
+                            'output_indicator_id' => $indicator['id'],
+                            'report_period_id' => $reportPeriodId,
+                        ]);
+                        $indicatorTarget->objective_id = $output['objectiveId'];
+                        $indicatorTarget->target = $indicator['target'];
+                        $indicatorTarget->due_date = $activity['dueDate'];
+                        if (!$indicatorTarget->id)
+                        {
+                            $indicatorTarget->created_by = $userId;
+                        } else
+                        {
+                            $indicatorTarget->updated_by = $userId;
+                        }
+                        $indicatorTarget->save();
+                    }
+                    // if we have an achievement
+                    if (!is_null($indicator['achievement']))
+                    {
+                        $indicatorAchievement = OutputAchievement::query()->firstOrNew([
+                            'output_indicator_id' => $indicator['id'],
+                            'report_period_id' => $reportPeriodId,
+                        ]);
+                        $indicatorAchievement->objective_id = $output['objectiveId'];
+                        $indicatorAchievement->actual = $indicator['achievement'];
+                        $indicatorAchievement->achievement_date = Carbon::now();
+                        if (!$indicatorAchievement->id)
+                        {
+                            $indicatorAchievement->created_by = $userId;
+                        } else
+                        {
+                            $indicatorAchievement->updated_by = $userId;
+                        }
+                        $indicatorAchievement->save();
+                    }
+                }
+            }
+            DB::commit();
+            return response()->json('Activity performance updated!');
+        } catch (Exception $ex)
+        {
+            DB::rollBack();
             return response()->json($ex->getMessage(), Response::HTTP_FORBIDDEN);
         }
     }

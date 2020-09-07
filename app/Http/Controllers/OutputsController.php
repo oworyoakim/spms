@@ -26,7 +26,7 @@ class OutputsController extends Controller
                 $builder->where('activity_id', $activityId);
             }
             $outputs = $builder->get()->map(function (Output $output) {
-                return $output->getDetails();
+                return $output->getDetails(true);
             });
             return response()->json($outputs);
         } catch (Exception $ex)

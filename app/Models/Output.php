@@ -39,7 +39,7 @@ class Output extends Model
         return $this->belongsTo(Activity::class, 'activity_id');
     }
 
-    public function getDetails($minimal = true)
+    public function getDetails($expanded = false)
     {
         $output = new stdClass();
         $output->id = $this->id;
@@ -50,7 +50,7 @@ class Output extends Model
         $output->description = $this->description;
         $output->intervention = $this->intervention ? $this->intervention->getDetails() : null;
         $output->activity = $this->activity ? $this->activity->getDetails() : null;
-        if (!$minimal)
+        if ($expanded)
         {
 
             $output->indicators = $this->indicators()

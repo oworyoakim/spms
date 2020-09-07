@@ -14,11 +14,13 @@ class OutputIndicatorsController extends Controller
         try
         {
             $builder = OutputIndicator::query();
-            $outputId = $request->get('output_id');
-            if ($outputId)
+            $outputId = $request->get('outputId');
+
+            if (empty($outputId))
             {
-                $builder->where('output_id', $outputId);
+                throw new Exception("Output ID required!");
             }
+            $builder->where('output_id', $outputId);
             $outputIndicators = $builder->get()->map(function (OutputIndicator $indicator) {
                 return $indicator->getDetails();
             });

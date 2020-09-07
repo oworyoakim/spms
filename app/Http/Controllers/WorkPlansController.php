@@ -42,6 +42,7 @@ class WorkPlansController extends Controller
                 $workPlan->tasks = Task::query()->where('work_plan_id', $plan->id)->get()->map(function (Task $task) {
                     return $task->getDetails();
                 });
+
                 return $workPlan;
             });
             return response()->json($workPlans);
@@ -58,18 +59,21 @@ class WorkPlansController extends Controller
             $rules = [
                 'title' => 'required',
                 'financialYear' => 'required',
+                'planningDeadline' => 'required',
                 'planId' => 'required',
                 'userId' => 'required',
             ];
             $this->validateData($request->all(), $rules);
             $financialYear = $request->get('financialYear');
             $years = explode('/', $financialYear);
+            $deadline = $request->get('planningDeadline');
 
             WorkPlan::query()->create([
                 'title' => $request->get('title'),
                 'financial_year' => $financialYear,
-                'start_date' => Carbon::parse("{$years[0]}-04-01"),
-                'end_date' => Carbon::parse("{$years[1]}-03-31"),
+                'start_date' => Carbon::parse("{$years[0]}-07-01"),
+                'end_date' => Carbon::parse("{$years[1]}-06-30"),
+                'planning_deadline' => Carbon::parse($deadline),
                 'plan_id' => $request->get('planId'),
                 'theme' => $request->get('theme'),
                 'description' => $request->get('description'),
@@ -99,12 +103,18 @@ class WorkPlansController extends Controller
             {
                 throw new Exception("Work plan with id {$id} not found!");
             }
-            $workPlan->update([
-                'title' => $request->get('title'),
-                'theme' => $request->get('theme'),
-                'description' => $request->get('description'),
-                'updated_by' => $request->get('userId'),
-            ]);
+            $deadline = $request->get('planningDeadline');
+            if ($deadline && $deadline != $workPlan->planning_deadline)
+            {
+                $deadline = Carbon::parse($deadline);
+                $workPlan->planning_deadline = $deadline;
+            }
+
+            $workPlan->title = $request->get('title');
+            $workPlan->theme = $request->get('theme');
+            $workPlan->description = $request->get('description');
+            $workPlan->updated_by = $request->get('userId');
+            $workPlan->save();
             return response()->json("Work plan updated!");
         } catch (Exception $ex)
         {

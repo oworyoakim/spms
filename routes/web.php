@@ -133,6 +133,8 @@ $router->group(['prefix' => 'v1'], function () use ($router) {
         $router->patch('hold', 'ActivitiesController@hold');
         $router->patch('unhold', 'ActivitiesController@unhold');
         $router->patch('complete', 'ActivitiesController@complete');
+        $router->get('performance', 'ActivitiesController@performance');
+        $router->post('performance', 'ActivitiesController@updatePerformance');
     });
 
     $router->group(['prefix' => 'stages'], function () use ($router) {

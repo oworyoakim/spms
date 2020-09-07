@@ -17,6 +17,7 @@ use stdClass;
  * @property string status
  * @property Carbon start_date
  * @property Carbon end_date
+ * @property Carbon planning_deadline
  * @property int created_by
  * @property int updated_by
  * @property Carbon created_at
@@ -27,7 +28,7 @@ class WorkPlan extends Model
 {
 
     protected $table = 'work_plans';
-    protected $dates = ['start_date','end_date', 'deleted_at'];
+    protected $dates = ['start_date', 'end_date', 'planning_deadline', 'deleted_at'];
 
     public function plan()
     {
@@ -52,6 +53,7 @@ class WorkPlan extends Model
         $workPlan->plan = ($this->plan) ? $this->plan->getDetails() : null;
         $workPlan->startDate = $this->start_date->toDateString();
         $workPlan->endDate = $this->end_date->toDateString();
+        $workPlan->planningDeadline = $this->planning_deadline->toDateString();
         $workPlan->createdBy = $this->created_by;
         $workPlan->updatedBy = $this->updated_by;
         $workPlan->createdAt = $this->created_at->toDateTimeString();
