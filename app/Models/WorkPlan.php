@@ -35,6 +35,11 @@ class WorkPlan extends Model
         return $this->belongsTo(Plan::class, 'plan_id');
     }
 
+    public function activityBlocks()
+    {
+        return $this->hasMany(ActivityBlock::class, 'work_plan_id');
+    }
+
     public function activities()
     {
         return $this->hasMany(Activity::class, 'work_plan_id');

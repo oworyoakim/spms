@@ -10,13 +10,18 @@ use stdClass;
  * @package App\Models
  * @property int id
  * @property int work_plan_id
- * @property int intervention_id
+ * @property int activity_block_id
+ * @property int objective_id
+ * @property int directorate_id
  * @property int department_id
  * @property int team_leader_id
  * @property string quarter
  * @property float completion
+ * @property string code
  * @property string title
  * @property string description
+ * @property float cost
+ * @property float expenditure
  * @property string status
  * @property Carbon start_date
  * @property Carbon due_date
@@ -30,16 +35,21 @@ use stdClass;
 class Activity extends Model
 {
     protected $table = 'activities';
-    protected $dates = ['start_date', 'due_date','end_date', 'deleted_at'];
+    protected $dates = ['start_date', 'due_date', 'end_date', 'deleted_at'];
 
     public function workPlan()
     {
         return $this->belongsTo(WorkPlan::class, 'work_plan_id');
     }
 
-    public function intervention()
+    public function objective()
     {
-        return $this->belongsTo(Intervention::class, 'intervention_id');
+        return $this->belongsTo(Objective::class, 'objective_id');
+    }
+
+    public function activityBlock()
+    {
+        return $this->belongsTo(ActivityBlock::class, 'activity_block_id');
     }
 
     public function stages()
@@ -61,12 +71,17 @@ class Activity extends Model
     {
         $activity = new stdClass();
         $activity->id = $this->id;
-        $activity->interventionId = $this->intervention_id;
+        $activity->objectiveId = $this->objective_id;
         $activity->departmentId = $this->department_id;
+        $activity->directorateId = $this->directorate_id;
         $activity->teamLeaderId = $this->team_leader_id;
         $activity->workPlanId = $this->work_plan_id;
+        $activity->activityBlockId = $this->activity_block_id;
         $activity->title = $this->title;
         $activity->description = $this->description;
+        $activity->code = $this->code;
+        $activity->cost = $this->cost;
+        $activity->expenditure = $this->expenditure;
         $activity->quarter = $this->quarter;
         $activity->status = $this->status;
         $activity->startDate = ($this->start_date) ? $this->start_date->toDateString() : null;
@@ -74,11 +89,13 @@ class Activity extends Model
         $activity->endDate = ($this->end_date) ? $this->end_date->toDateString() : null;
         $activity->completion = $this->completion;
         $activity->workPlan = ($this->workPlan) ? $this->workPlan->getDetails() : null;
-        $activity->intervention = ($this->intervention) ? $this->intervention->getDetails() : null;
+        $activity->objective = ($this->objective) ? $this->objective->getDetails() : null;
 
-//        $activity->stages = $this->stages()->get()->map(function (Stage $stage) {
-//            return $stage->getDetails();
-//        });
+        $activity->stages = $this->stages()
+                                 ->get()
+                                 ->map(function (Stage $stage) {
+                                     return $stage->getDetails();
+                                 });
         $activity->createdBy = $this->created_by;
         $activity->updatedBy = $this->updated_by;
         $activity->createdAt = $this->created_at->toDateTimeString();
@@ -106,8 +123,10 @@ class Activity extends Model
         $this->save();
     }
 
-    public function start($userId){
-        if($this->status == 'approved'){
+    public function start($userId)
+    {
+        if ($this->status == 'approved')
+        {
             $this->start_date = Carbon::now();
             $this->status = 'ongoing';
             $this->updated_by = $userId;
@@ -115,40 +134,44 @@ class Activity extends Model
         }
     }
 
-    public function hold($userId){
-        if($this->status == 'ongoing'){
+    public function hold($userId)
+    {
+        if ($this->status == 'ongoing')
+        {
             $this->status = 'onhold';
             $this->updated_by = $userId;
             $this->save();
 
             // Set all ongoing stages as onhold
-            $this->stages()->where('status','ongoing')->update([
+            $this->stages()->where('status', 'ongoing')->update([
                 'status' => 'onhold',
                 'updated_by' => $userId,
             ]);
 
             // Set all ongoing tasks as onhold
-            $this->tasks()->where('status','ongoing')->update([
+            $this->tasks()->where('status', 'ongoing')->update([
                 'status' => 'onhold',
                 'updated_by' => $userId,
             ]);
         }
     }
 
-    public function unhold($userId){
-        if($this->status == 'onhold'){
+    public function unhold($userId)
+    {
+        if ($this->status == 'onhold')
+        {
             $this->status = 'ongoing';
             $this->updated_by = $userId;
             $this->save();
 
             // Set all onhold stages as ongoing
-            $this->stages()->where('status','onhold')->update([
+            $this->stages()->where('status', 'onhold')->update([
                 'status' => 'ongoing',
                 'updated_by' => $userId,
             ]);
 
             // Set all onhold tasks as ongoing
-            $this->tasks()->where('status','onhold')->update([
+            $this->tasks()->where('status', 'onhold')->update([
                 'status' => 'ongoing',
                 'updated_by' => $userId,
             ]);

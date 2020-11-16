@@ -51,10 +51,6 @@ class Stage extends Model
         $stage->startDate = ($this->start_date) ? $this->start_date->toDateString() : null;
         $stage->dueDate = $this->due_date->toDateString();
         $stage->endDate = ($this->end_date) ? $this->end_date->toDateString() : null;
-//        $stage->tasks = $this->tasks()->get()->map(function (Task $task) {
-//            return $task->getDetails();
-//        });
-        $stage->activity = ($this->activity) ? $this->activity->getDetails() : null;
         $stage->createdBy = $this->created_by;
         $stage->updatedBy = $this->updated_by;
         $stage->createdAt = $this->created_at->toDateTimeString();

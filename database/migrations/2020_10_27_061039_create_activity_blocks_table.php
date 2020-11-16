@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateTasksTable extends Migration
+class CreateActivityBlocksTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,17 +13,16 @@ class CreateTasksTable extends Migration
      */
     public function up()
     {
-        Schema::create('tasks', function (Blueprint $table) {
+        Schema::create('activity_blocks', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('work_plan_id')->index();
-            $table->unsignedBigInteger('activity_id')->index();
-            $table->unsignedBigInteger('stage_id')->index()->nullable();
-            $table->string('title');
+            $table->text('title');
             $table->text('description')->nullable();
-            $table->date('start_date')->nullable();
-            $table->date('due_date')->nullable();
-            $table->date('end_date')->nullable();
-            $table->enum('status',['pending','ongoing','onhold','completed'])->default('pending')->index();
+            $table->unsignedBigInteger('objective_id');
+            $table->unsignedBigInteger('work_plan_id');
+            $table->unsignedBigInteger('outcome_id');
+            $table->enum('quarter', ['Q1','Q2','Q3','Q4']);
+            $table->string('code')->unique();
+            $table->float('cost', 13,2)->default(0);
             $table->unsignedBigInteger('created_by')->nullable();
             $table->unsignedBigInteger('updated_by')->nullable();
             $table->timestamps();
@@ -38,6 +37,6 @@ class CreateTasksTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('tasks');
+        Schema::dropIfExists('activity_blocks');
     }
 }

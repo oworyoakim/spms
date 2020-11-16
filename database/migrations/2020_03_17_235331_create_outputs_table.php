@@ -16,7 +16,7 @@ class CreateOutputsTable extends Migration
         Schema::create('outputs', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('objective_id')->nullable();
-            $table->unsignedBigInteger('intervention_id');
+            $table->unsignedBigInteger('intervention_id')->nullable();
             $table->string('name');
             $table->text('description')->nullable();
             $table->unsignedBigInteger('created_by')->nullable();

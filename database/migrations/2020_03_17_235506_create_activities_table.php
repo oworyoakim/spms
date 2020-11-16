@@ -18,7 +18,7 @@ class CreateActivitiesTable extends Migration
             $table->string('title');
             $table->text('description')->nullable();
             $table->unsignedBigInteger('work_plan_id')->index();
-            $table->unsignedBigInteger('intervention_id')->index();
+            $table->unsignedBigInteger('objective_id')->index();
             $table->date('start_date')->nullable();
             $table->date('due_date');
             $table->date('end_date')->nullable();

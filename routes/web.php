@@ -24,9 +24,11 @@ $router->get('/', function () use ($router) {
 
 $router->group(['prefix' => 'v1'], function () use ($router) {
     $router->get('user', 'AccountController@getUser');
+    $router->get('form-selections-options', 'HomeController@formSelections');
 
     $router->group(['prefix' => 'reports'], function () use ($router) {
         $router->get('strategy-report', 'ReportsController@strategyReport');
+        $router->get('activity-report', 'ReportsController@activityReport');
         $router->get('directives-and-resolutions-report', 'ReportsController@directivesAndResolutionsReport');
     });
 
@@ -124,6 +126,13 @@ $router->group(['prefix' => 'v1'], function () use ($router) {
         $router->get('', 'WorkPlansController@index');
         $router->post('', 'WorkPlansController@store');
         $router->put('', 'WorkPlansController@update');
+    });
+
+    $router->group(['prefix' => 'activity-blocks'], function () use ($router) {
+        $router->get('', 'ActivityBlocksController@index');
+        $router->post('', 'ActivityBlocksController@store');
+        $router->put('', 'ActivityBlocksController@update');
+        $router->get('{id}', 'ActivityBlocksController@show');
     });
 
     $router->group(['prefix' => 'activities'], function () use ($router) {

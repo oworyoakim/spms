@@ -18,7 +18,7 @@ class TasksController extends Controller
             $builder = Task::query();
             $stageId = $request->get('stageId');
             $activityId = $request->get('activityId');
-            if (!$activityId || !$stageId)
+            if (!$activityId && !$stageId)
             {
                throw new Exception("Activity ID or Stage ID required!");
             }

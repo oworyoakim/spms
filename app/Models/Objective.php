@@ -12,6 +12,7 @@ use stdClass;
  * @property string name
  * @property string description
  * @property int plan_id
+ * @property int key_result_area_id
  * @property int rank
  * @property int created_by
  * @property int updated_by
@@ -28,10 +29,18 @@ class Objective extends Model
     {
         return $this->belongsTo(Plan::class, 'plan_id');
     }
-
+    public function keyResultArea()
+    {
+        return $this->belongsTo(KeyResultArea::class, 'key_result_area_id');
+    }
     public function interventions()
     {
         return $this->hasMany(Intervention::class, 'objective_id');
+    }
+
+    public function activityBlocks()
+    {
+        return $this->hasMany(ActivityBlock::class, 'objective_id');
     }
 
     public function outputs()
@@ -62,6 +71,7 @@ class Objective extends Model
         $objective->description = $this->description;
         $objective->rank = $this->rank;
         $objective->planId = $this->plan_id;
+        $objective->keyResultAreaId = $this->key_result_area_id;
         $objective->plan = $this->plan ? $this->plan->getDetails() : null;
         $objective->reportPeriods = $objective->plan ? $objective->plan->reportPeriods : [];
         $objective->createdBy = $this->created_by;

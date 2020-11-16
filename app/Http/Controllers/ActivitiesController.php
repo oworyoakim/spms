@@ -20,21 +20,26 @@ class ActivitiesController extends Controller
         try
         {
             $builder = Activity::query();
-            $interventionId = $request->get('interventionId');
+            $activityBlockId = $request->get('activityBlockId');
             $departmentId = $request->get('departmentId');
+            $objectiveId = $request->get('objectiveId');
             $workPlanId = $request->get('workPlanId');
-            if (!$workPlanId || !$interventionId)
+            if (!$workPlanId && !$activityBlockId)
             {
-                throw new Exception("Intervention ID or Work Plan ID required!");
+                throw new Exception("Work Plan ID  or Main Activity ID required!");
             }
             if ($workPlanId)
             {
                 $builder->where('work_plan_id', $workPlanId);
             }
-
-            if ($interventionId)
+            if ($activityBlockId)
             {
-                $builder->where('intervention_id', $interventionId);
+                $builder->where('activity_block_id', $activityBlockId);
+            }
+
+            if ($objectiveId)
+            {
+                $builder->where('objective_id', $objectiveId);
             }
 
             $status = $request->get('status');
@@ -58,11 +63,13 @@ class ActivitiesController extends Controller
         try
         {
             $rules = [
+                'code' => 'required|unique:activities,code',
                 'title' => 'required',
                 'dueDate' => 'required|date',
                 'workPlanId' => 'required',
-                'interventionId' => 'required',
-                'departmentId' => 'required',
+                'activityBlockId' => 'required',
+                'objectiveId' => 'required',
+                //'departmentId' => 'required',
                 'teamLeaderId' => 'required',
                 'quarter' => 'required',
                 'userId' => 'required',
@@ -72,11 +79,16 @@ class ActivitiesController extends Controller
                 'title' => $request->get('title'),
                 'due_date' => Carbon::parse($request->get('dueDate')),
                 'work_plan_id' => $request->get('workPlanId'),
-                'intervention_id' => $request->get('interventionId'),
+                'objective_id' => $request->get('objectiveId'),
                 'department_id' => $request->get('departmentId'),
                 'team_leader_id' => $request->get('teamLeaderId'),
+                'activity_block_id' => $request->get('activityBlockId'),
                 'quarter' => $request->get('quarter'),
                 'description' => $request->get('description'),
+                'directorate_id' => $request->get('directorateId'),
+                'cost' => $request->get('cost'),
+                'expenditure' => $request->get('expenditure'),
+                'code' => $request->get('code'),
                 'created_by' => $request->get('userId'),
             ]);
             return response()->json("Activity created!");
@@ -94,9 +106,10 @@ class ActivitiesController extends Controller
                 'id' => 'required',
                 'title' => 'required',
                 'dueDate' => 'required|date',
-                'interventionId' => 'required',
-                'departmentId' => 'required',
+                'objectiveId' => 'required',
+                //'departmentId' => 'required',
                 'teamLeaderId' => 'required',
+                'activityBlockId' => 'required',
                 'quarter' => 'required',
                 'workPlanId' => 'required',
                 'userId' => 'required',
@@ -108,10 +121,25 @@ class ActivitiesController extends Controller
             {
                 throw new Exception("Activity with id {$id} not found!");
             }
+
+            $code = $request->get('code');
+            if($activity->code != $code && Activity::query()->where('code',$code)->count()){
+                throw new Exception("Activity code {$code} already taken!");
+            }
+
             $activity->update([
                 'title' => $request->get('title'),
                 'description' => $request->get('description'),
                 'due_date' => Carbon::parse($request->get('dueDate')),
+                'activity_block_id' => $request->get('activityBlockId'),
+                'work_plan_id' => $request->get('workPlanId'),
+                'objective_id' => $request->get('objectiveId'),
+                'department_id' => $request->get('departmentId'),
+                'team_leader_id' => $request->get('teamLeaderId'),
+                'directorate_id' => $request->get('directorateId'),
+                'cost' => $request->get('cost'),
+                'expenditure' => $request->get('expenditure'),
+                'code' => $code,
                 'updated_by' => $request->get('userId'),
             ]);
             return response()->json("Activity updated!");

@@ -15,8 +15,13 @@ class OutputsController extends Controller
         try
         {
             $builder = Output::query();
+            $objectiveId = $request->get('objectiveId');
             $interventionId = $request->get('interventionId');
             $activityId = $request->get('activityId');
+            if ($objectiveId)
+            {
+                $builder->where('objective_id', $objectiveId);
+            }
             if ($interventionId)
             {
                 $builder->where('intervention_id', $interventionId);
@@ -41,8 +46,6 @@ class OutputsController extends Controller
         {
             $rules = [
                 'name' => 'required',
-                'interventionId' => 'required',
-                'objectiveId' => 'required',
                 'userId' => 'required',
             ];
             $this->validateData($request->all(), $rules);

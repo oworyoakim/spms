@@ -88,6 +88,7 @@ class DirectiveResolution extends Model
     {
         $reportData = new stdClass();
         $reportData->title = $this->title;
+        $reportData->responsibilityCentreId = $this->responsibility_centre;
         $reportData->reportDate = Carbon::today()->toDateString();
         $reportData->workPlan = ($this->workPlan) ? $this->workPlan->getDetails() : null;
         //$reportData->reportPeriod = $reportPeriod->getDetails();

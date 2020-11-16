@@ -46,6 +46,7 @@ class ObjectivesController extends Controller
                 'name' => 'required',
                 'rank' => 'required',
                 'planId' => 'required',
+                'keyResultAreaId' => 'required',
                 'userId' => 'required',
             ];
             $this->validateData($request->all(), $rules);
@@ -53,6 +54,7 @@ class ObjectivesController extends Controller
                 'name' => $request->get('name'),
                 'rank' => $request->get('rank'),
                 'plan_id' => $request->get('planId'),
+                'key_result_area_id' => $request->get('keyResultAreaId'),
                 'description' => $request->get('description'),
                 'created_by' => $request->get('userId'),
             ]);
@@ -71,6 +73,7 @@ class ObjectivesController extends Controller
                 'id' => 'required',
                 'name' => 'required',
                 'rank' => 'required',
+                'keyResultAreaId' => 'required',
                 'userId' => 'required',
             ];
             $this->validateData($request->all(), $rules);
@@ -84,6 +87,7 @@ class ObjectivesController extends Controller
                 'name' => $request->get('name'),
                 'rank' => $request->get('rank'),
                 'description' => $request->get('description'),
+                'key_result_area_id' => $request->get('keyResultAreaId'),
                 'updated_by' => $request->get('userId'),
             ]);
             return response()->json("Strategic objective updated!");

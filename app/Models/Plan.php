@@ -246,7 +246,7 @@ class Plan extends Model
 
         $startDate = $reportPeriod->startDate;
         $endDate = $reportPeriod->endDate;
-        $comment = "The purpose of UNEB examinations in selection, certification and accountability cannot be over emphasized. However, this njwfew ej fewkcweje ce ewesdcvb cj eckjeset in a challenge for the Board to maintain comparable examinations stadndards over ddd time.";
+        $comment = "The purpose of UNEB examinations is selection, certification and accountability.";
 
         $reportData = new stdClass();
         $reportData->startDate = $startDate;

@@ -29,6 +29,11 @@ class KeyResultArea extends Model
         return $this->belongsTo(Plan::class, 'plan_id');
     }
 
+    public function objective()
+    {
+        return $this->hasOne(Objective::class, 'key_result_area_id');
+    }
+
     public function outcomes()
     {
         return $this->hasMany(Outcome::class, 'key_result_area_id');

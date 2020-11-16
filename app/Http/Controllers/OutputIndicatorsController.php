@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Output;
 use App\Models\OutputIndicator;
 use Exception;
 use Illuminate\Http\Request;
@@ -14,13 +15,30 @@ class OutputIndicatorsController extends Controller
         try
         {
             $builder = OutputIndicator::query();
+            $objectiveId = $request->get('objectiveId');
+            $interventionId = $request->get('interventionId');
+            $activityId = $request->get('activityId');
             $outputId = $request->get('outputId');
-
-            if (empty($outputId))
+            if (!empty($objectiveId))
             {
-                throw new Exception("Output ID required!");
+                $outputIds = Output::query()->where('objective_id', $objectiveId)->pluck('id')->all();
+                $builder->whereIn('output_id', $outputIds);
+            } elseif (!empty($interventionId))
+            {
+                $outputIds = Output::query()->where('intervention_id', $interventionId)->pluck('id')->all();
+                $builder->whereIn('output_id', $outputIds);
+            } elseif (!empty($activityId))
+            {
+                $outputIds = Output::query()->where('activity_id', $activityId)->pluck('id')->all();
+                $builder->whereIn('output_id', $outputIds);
+            } elseif (!empty($outputId))
+            {
+                $builder->where('output_id', $outputId);
+            } else
+            {
+                throw new Exception("Strategic objective ID, Intervention ID, Activity ID, or Output ID required!");
             }
-            $builder->where('output_id', $outputId);
+
             $outputIndicators = $builder->get()->map(function (OutputIndicator $indicator) {
                 return $indicator->getDetails();
             });
@@ -37,7 +55,6 @@ class OutputIndicatorsController extends Controller
         {
             $rules = [
                 'name' => 'required',
-                'objectiveId' => 'required',
                 'outputId' => 'required',
                 'unit' => 'required',
                 'userId' => 'required',
@@ -65,6 +82,7 @@ class OutputIndicatorsController extends Controller
             $rules = [
                 'id' => 'required',
                 'name' => 'required',
+                'outputId' => 'required',
                 'unit' => 'required',
                 'userId' => 'required',
             ];
@@ -78,6 +96,7 @@ class OutputIndicatorsController extends Controller
             $outputIndicator->update([
                 'name' => $request->get('name'),
                 'description' => $request->get('description'),
+                'output_id' => $request->get('outputId'),
                 'unit' => $request->get('unit'),
                 'updated_by' => $request->get('userId'),
             ]);
