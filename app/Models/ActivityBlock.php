@@ -12,6 +12,8 @@ use stdClass;
  * @property int id
  * @property int objective_id
  * @property int outcome_id
+ * @property int output_id
+ * @property int output_indicator_id
  * @property int work_plan_id
  * @property string title
  * @property string description
@@ -35,6 +37,11 @@ class ActivityBlock extends Model
     public function outcome()
     {
         return $this->belongsTo(Outcome::class, 'outcome_id');
+    }
+
+    public function indicator()
+    {
+        return $this->belongsTo(OutputIndicator::class, 'output_indicator_id');
     }
 
     public function objective()
@@ -72,6 +79,15 @@ class ActivityBlock extends Model
         $activityBlock->directorateIds = $this->directorates()->pluck('directorate_id')->all();
         $activityBlock->objective = $this->objective ? $this->objective->getDetails() : null;
         $activityBlock->outcome = $this->outcome ? $this->outcome->getDetails() : null;
+        $activityBlock->outputId = $this->output_id;
+        $activityBlock->output = null;
+        $activityBlock->indicatorId = $this->output_indicator_id;
+        $activityBlock->indicator = null;
+        if($this->indicator){
+            $activityBlock->indicator = new stdClass();
+            $activityBlock->indicator->id = $this->output_indicator_id;
+            $activityBlock->indicator->name = $this->indicator->name;
+        }
         $activityBlock->createdBy = $this->created_by;
         $activityBlock->updatedBy = $this->updated_by;
         $activityBlock->createdAt = $this->created_at->toDateTimeString();
@@ -91,6 +107,37 @@ class ActivityBlock extends Model
         $reportData->quarter = $this->quarter;
         $reportData->code = $this->code;
         $reportData->cost = $this->cost;
+        $reportData->indicatorId = $this->output_indicator_id;
+        $reportData->indicator = null;
+        $reportData->outputId = $this->output_id;
+        $reportData->output = null;
+        if($this->output){
+            $reportData->output = new stdClass();
+            $reportData->output->id = $this->output_id;
+            $reportData->output->name = $this->output->name;
+        }
+        if($this->indicator){
+            $reportData->indicator = new stdClass();
+            $reportData->indicator->id = $this->output_indicator_id;
+            $reportData->indicator->name = $this->indicator->name;
+            $reportData->indicator->unit = $this->indicator->unit;
+            $target = null;
+            // $target = $this->indicator->targets()->where('report_period_id', $reportPeriod->id)->first();
+            $reportData->indicator->target = empty($target) ? null : $target->target;
+            $achievement = null;
+            // $achievement = $this->indicator->achievements()->where('report_period_id', $reportPeriod->id)->first();
+            $reportData->indicator->actual = empty($achievement) ? null : $achievement->actual;
+            //  Percentage of achievement and variance
+            if ($reportData->indicator->target && $reportData->indicator->actual)
+            {
+                $reportData->indicator->achieved = round(($reportData->indicator->actual / $reportData->indicator->target) * 100, 2);
+                $reportData->indicator->variance = $reportData->indicator->target - $reportData->indicator->actual;
+            } else
+            {
+                $reportData->indicator->achieved = null;
+                $reportData->indicator->variance = null;
+            }
+        }
         $comment = "The purpose of UNEB examinations is selection, certification and accountability.";
         $reportData->activities = Collection::make();
         foreach ($this->activities as $activity)

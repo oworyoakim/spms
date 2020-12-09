@@ -37,6 +37,11 @@ class OutputIndicator extends Model
         return $this->hasMany(OutputIndicatorTarget::class, 'output_indicator_id');
     }
 
+    public function activityBlocks()
+    {
+        return $this->hasMany(ActivityBlock::class, 'output_indicator_id');
+    }
+
     public function achievements()
     {
         return $this->hasMany(OutputAchievement::class, 'output_indicator_id');
