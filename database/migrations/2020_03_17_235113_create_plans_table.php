@@ -19,12 +19,18 @@ class CreatePlansTable extends Migration
             $table->string("name");
             $table->date("start_date");
             $table->date("end_date");
-            $table->enum("frequency",Plan::REPORT_FREQUENCIES);
+            $table->enum("frequency", [
+                Plan::$FREQUENCY_MONTHLY,
+                Plan::$FREQUENCY_QUARTERLY,
+                Plan::$FREQUENCY_TRIMONTHLY,
+                Plan::$FREQUENCY_HALF_YEARLY,
+                Plan::$FREQUENCY_YEARLY,
+            ])->default(Plan::$FREQUENCY_QUARTERLY);
             $table->string("theme")->nullable();
             $table->text("mission")->nullable();
             $table->text("vision")->nullable();
             $table->text("values")->nullable();
-            $table->enum("state",Plan::STATES)->default(Plan::STATE_PLANNING);
+            $table->enum("state", Plan::STATES)->default(Plan::STATE_PLANNING);
             $table->unsignedBigInteger('created_by')->nullable();
             $table->unsignedBigInteger('updated_by')->nullable();
             $table->timestamps();

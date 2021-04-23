@@ -17,7 +17,7 @@ class CreateWorkPlansTable extends Migration
             $table->id();
             $table->unsignedBigInteger('plan_id')->index();
             $table->string('title');
-            $table->string('financial_year')->unique();
+            $table->string('financial_year');
             $table->date('start_date')->nullable();
             $table->date('end_date')->nullable();
             $table->string('theme')->nullable();
@@ -27,6 +27,7 @@ class CreateWorkPlansTable extends Migration
             $table->unsignedBigInteger('updated_by')->nullable();
             $table->timestamps();
             $table->softDeletes();
+            $table->unique(['plan_id', 'financial_year']);
         });
     }
 

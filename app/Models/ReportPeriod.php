@@ -22,20 +22,18 @@ class ReportPeriod extends Model
     protected $table = 'report_periods';
     protected $dates = ['start_date','end_date','deleted_at'];
 
-    public function plan()
+    public function reportable()
     {
-        return $this->belongsTo(Plan::class, 'plan_id');
+        return $this->morphTo();
     }
 
     public function getDetails()
     {
-        $intervention = new stdClass();
-        $intervention->id = $this->id;
-        $intervention->name = $this->name;
-        $intervention->startDate = $this->start_date->toDateString();
-        $intervention->endDate = $this->end_date->toDateString();
-        $intervention->createdAt = $this->created_at->toDateTimeString();
-        $intervention->updatedAt = $this->updated_at->toDateTimeString();
-        return $intervention;
+        $reportPeriod = new stdClass();
+        $reportPeriod->id = $this->id;
+        $reportPeriod->name = $this->name;
+        $reportPeriod->startDate = $this->start_date->toDateString();
+        $reportPeriod->endDate = $this->end_date->toDateString();
+        return $reportPeriod;
     }
 }

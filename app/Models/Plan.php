@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Traits\Reportable;
 use Exception;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
@@ -29,21 +30,9 @@ use stdClass;
  */
 class Plan extends Model
 {
+    use Reportable;
+
     protected $dates = ['start_date', 'end_date', 'deleted_at'];
-
-    const FREQUENCY_MONTHLY = 'monthly';
-    const FREQUENCY_QUARTERLY = 'quarterly';
-    const FREQUENCY_TRIMONTHLY = '4-months';
-    const FREQUENCY_HALF_YEARLY = '6-months';
-    const FREQUENCY_YEARLY = 'yearly';
-
-    const REPORT_FREQUENCIES = [
-        self::FREQUENCY_MONTHLY ?: 'monthly',
-        self::FREQUENCY_QUARTERLY ?: 'quarterly',
-        self::FREQUENCY_TRIMONTHLY ?: '4-months',
-        self::FREQUENCY_HALF_YEARLY ?: '6-months',
-        self::FREQUENCY_YEARLY ?: 'yearly',
-    ];
 
     const STATE_PLANNING = 'planing';
     const STATE_EXECUTION = 'execution';
@@ -75,11 +64,6 @@ class Plan extends Model
         return $this->hasMany(KeyResultArea::class, 'plan_id');
     }
 
-    public function reportPeriods()
-    {
-        return $this->hasMany(ReportPeriod::class, 'plan_id');
-    }
-
     public function getDetails()
     {
         $plan = new stdClass();
@@ -108,87 +92,6 @@ class Plan extends Model
         $plan->createdAt = $this->created_at->toDateTimeString();
         $plan->updatedAt = $this->updated_at->toDateTimeString();
         return $plan;
-    }
-
-    public function createPeriods()
-    {
-        $periods = [];
-        $periodStartDate = $this->start_date->clone();
-        switch ($this->frequency)
-        {
-            case self::FREQUENCY_MONTHLY:
-                while ($periodStartDate->lessThan($this->end_date))
-                {
-                    $periodEndDate = $periodStartDate->clone()->addMonths(1)->subDays(1);
-                    $name = "{$periodStartDate->format('d/m/Y')} - {$periodEndDate->format('d/m/Y')}";
-                    $periods[] = new ReportPeriod([
-                        'name' => $name,
-                        'start_date' => $periodStartDate->clone()->toDateString(),
-                        'end_date' => $periodEndDate->clone()->toDateString(),
-                    ]);
-                    $periodStartDate = $periodEndDate->addDays(1);
-                }
-                break;
-            case self::FREQUENCY_QUARTERLY:
-                while ($periodStartDate->lessThan($this->end_date))
-                {
-                    $periodEndDate = $periodStartDate->clone()->addMonths(3)->subDays(1);
-                    $name = "{$periodStartDate->format('d/m/Y')} - {$periodEndDate->format('d/m/Y')}";
-                    $periods[] = new ReportPeriod([
-                        'name' => $name,
-                        'start_date' => $periodStartDate->clone()->toDateString(),
-                        'end_date' => $periodEndDate->clone()->toDateString(),
-                    ]);
-                    $periodStartDate = $periodEndDate->addDays(1);
-                }
-                break;
-            case self::FREQUENCY_TRIMONTHLY:
-                while ($periodStartDate->lessThan($this->end_date))
-                {
-                    $periodEndDate = $periodStartDate->clone()->addMonths(4)->subDays(1);
-                    $name = "{$periodStartDate->format('d/m/Y')} - {$periodEndDate->format('d/m/Y')}";
-                    $periods[] = new ReportPeriod([
-                        'name' => $name,
-                        'start_date' => $periodStartDate->clone()->toDateString(),
-                        'end_date' => $periodEndDate->clone()->toDateString(),
-                    ]);
-                    $periodStartDate = $periodEndDate->addDays(1);
-                }
-                break;
-            case self::FREQUENCY_HALF_YEARLY:
-                while ($periodStartDate->lessThan($this->end_date))
-                {
-                    $periodEndDate = $periodStartDate->clone()->addMonths(6)->subDays(1);
-                    $name = "{$periodStartDate->format('d/m/Y')} - {$periodEndDate->format('d/m/Y')}";
-                    $periods[] = new ReportPeriod([
-                        'name' => $name,
-                        'start_date' => $periodStartDate->clone()->toDateString(),
-                        'end_date' => $periodEndDate->clone()->toDateString(),
-                    ]);
-                    $periodStartDate = $periodEndDate->addDays(1);
-                }
-                break;
-            case self::FREQUENCY_YEARLY:
-                while ($periodStartDate->lessThan($this->end_date))
-                {
-                    $periodEndDate = $periodStartDate->clone()->addMonths(12)->subDays(1);
-                    $name = "{$periodStartDate->format('d/m/Y')} - {$periodEndDate->format('d/m/Y')}";
-                    $periods[] = new ReportPeriod([
-                        'name' => $name,
-                        'start_date' => $periodStartDate->clone()->toDateString(),
-                        'end_date' => $periodEndDate->clone()->toDateString(),
-                    ]);
-                    $periodStartDate = $periodEndDate->addDays(1);
-                }
-                break;
-            default:
-                break;
-        }
-        if (count($periods))
-        {
-            $this->reportPeriods()->forceDelete();
-            $this->reportPeriods()->saveMany($periods);
-        }
     }
 
     public function financialYears()
@@ -318,6 +221,72 @@ class Plan extends Model
         return $reportData;
     }
 
+    /**
+     * @return stdClass
+     * @throws Exception
+     */
+    public function getSummaryReportData()
+    {
+        $financialYears = $this->getFinancialYears();
+
+        $reportData = new stdClass();
+        $reportData->startDate = $this->start_date->toDateString();
+        $reportData->endDate = $this->end_date->toDateString();
+        $reportData->reportFrequency = "Yearly";
+        $reportData->reportDate = Carbon::today()->toDateString();
+        $reportData->plan = $this->name;
+        $reportData->financialYears = $financialYears;
+
+        // Outputs
+        $reportData->outputs = Collection::make();
+        foreach ($this->objectives as $objective)
+        {
+            foreach ($objective->outputs as $output)
+            {
+                $objectiveOutput = new stdClass();
+                $objectiveOutput->name = $output->name;
+                $objectiveOutput->rank = $output->rank;
+                // Indicators
+                $objectiveOutput->indicators = Collection::make();
+                foreach ($output->indicators as $indicator)
+                {
+                    $outputIndicator = new stdClass();
+                    $outputIndicator->name = $indicator->name;
+                    $outputIndicator->rank = $indicator->rank;
+                    $outputIndicator->unit = $indicator->unit;
+                    $outputIndicator->targets = [];
+                    $outputIndicator->actuals = [];
+                    foreach ($financialYears as $financialYear)
+                    {
+                        $reportPeriodIds = $this->reportPeriods()
+                                                ->whereDate('start_date', '>=', $financialYear->startDate)
+                                                ->whereDate('end_date', '<=', $financialYear->endDate)
+                                                ->pluck('id')
+                                                ->all();
+                        // targets
+                        $targets = $indicator->targets()->whereIn('report_period_id', $reportPeriodIds)->get();
+                        // achievements
+                        $achievements = $indicator->achievements()->whereIn('report_period_id', $reportPeriodIds)->get();
+
+                        if ($indicator->unit == OutputIndicator::UNIT_COUNT)
+                        {
+                            $outputIndicator->targets[$financialYear->name] = $targets->sum('target');
+                            $outputIndicator->actuals[$financialYear->name] = $achievements->sum('actual');
+                        } else
+                        {
+                            $outputIndicator->targets[$financialYear->name] = $targets->avg('target');
+                            $outputIndicator->actuals[$financialYear->name] = $achievements->avg('actual');
+                        }
+
+                        $objectiveOutput->indicators->push($outputIndicator);
+                    }
+                }
+                $reportData->outputs->push($objectiveOutput);
+            }
+        }
+        return $reportData;
+    }
+
 
     public function getDateParams($date)
     {
@@ -360,6 +329,19 @@ class Plan extends Model
         $params->quarters = $quarters;
 
         return $params;
+    }
+
+    public function getFinancialYears()
+    {
+        $fYears = $this->financialYears();
+        return array_map(function ($fYear) {
+            $financialYear = new stdClass();
+            $financialYear->name = $fYear;
+            $years = explode('/', $fYear);
+            $financialYear->startDate = "{$years[0]}-07-01";
+            $financialYear->endDate = "{$years[1]}-06-30";
+            return $financialYear;
+        }, $fYears);
     }
 
 }

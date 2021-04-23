@@ -15,10 +15,11 @@ class CreateReportPeriodsTable extends Migration
     {
         Schema::create('report_periods', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('plan_id');
             $table->string('name');
             $table->date('start_date');
             $table->date('end_date');
+            $table->unsignedBigInteger('reportable_id');
+            $table->string('reportable_type');
             $table->timestamps();
             $table->softDeletes();
         });

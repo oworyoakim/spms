@@ -46,6 +46,9 @@ class PlansController extends Controller
             $endDate = Carbon::parse($request->get('endDate'));
             $frequency = $request->get('frequency');
             DB::beginTransaction();
+            /**
+             * @var Plan $plan
+             */
             $plan = Plan::query()->create([
                 'name' => $request->get('name'),
                 'theme' => $request->get('theme'),
@@ -57,7 +60,7 @@ class PlansController extends Controller
                 'values' => $request->get('values'),
                 'created_by' => $request->get('userId'),
             ]);
-            $plan->createPeriods();
+            $plan->createReportPeriods();
             DB::commit();
             return response()->json("Plan Created!");
         } catch (Exception $ex)
@@ -82,6 +85,9 @@ class PlansController extends Controller
             ];
             $this->validateData($request->all(), $rules);
             $id = $request->get('id');
+            /**
+             * @var Plan $plan
+             */
             $plan = Plan::query()->find($id);
             if (!$plan)
             {
@@ -109,7 +115,7 @@ class PlansController extends Controller
 
             if ($oldFrequency != $frequency || $oldStartDate->toDateString() != $startDate->toDateString() || $oldEndDate->toDateString() != $endDate->toDateString())
             {
-                $plan->createPeriods();
+                $plan->createReportPeriods();
             }
             DB::commit();
             return response()->json("Plan Updated!");

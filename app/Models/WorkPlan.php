@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Traits\Reportable;
 use Illuminate\Support\Carbon;
 use stdClass;
 
@@ -26,6 +27,7 @@ use stdClass;
  */
 class WorkPlan extends Model
 {
+    use Reportable;
 
     protected $table = 'work_plans';
     protected $dates = ['start_date', 'end_date', 'planning_deadline', 'deleted_at'];
@@ -59,6 +61,11 @@ class WorkPlan extends Model
         $workPlan->startDate = $this->start_date->toDateString();
         $workPlan->endDate = $this->end_date->toDateString();
         $workPlan->planningDeadline = $this->planning_deadline->toDateString();
+        $workPlan->reportPeriods = $this->reportPeriods()
+                                    ->get()
+                                    ->map(function (ReportPeriod $period) {
+                                        return $period->getDetails();
+                                    });
         $workPlan->createdBy = $this->created_by;
         $workPlan->updatedBy = $this->updated_by;
         $workPlan->createdAt = $this->created_at->toDateTimeString();

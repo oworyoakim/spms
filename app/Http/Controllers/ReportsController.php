@@ -22,14 +22,9 @@ class ReportsController extends Controller
         try
         {
             $planId = $request->get('planId');
-            $reportPeriodId = $request->get('reportPeriodId');
             if (empty($planId))
             {
                 throw new Exception("Strategic plan required!");
-            }
-            if (empty($reportPeriodId))
-            {
-                throw new Exception("Report period required!");
             }
             $plan = Plan::query()->find($planId);
             if (empty($plan))
@@ -37,11 +32,23 @@ class ReportsController extends Controller
                 throw new Exception("Strategic plan not found!");
             }
 
+            $reportType = $request->get('reportType');
+            if ($reportType == 'summary')
+            {
+                $planData = $plan->getSummaryReportData();
+            } else
+            {
+                $reportPeriodId = $request->get('reportPeriodId');
+                if (empty($reportPeriodId))
+                {
+                    throw new Exception("Report period required!");
+                }
+                $planData = $plan->getReportData($reportPeriodId);
+            }
+
 //            if(Carbon::today()->lessThanOrEqualTo($plan->start_date)){
 //                throw new Exception("No reports available for this criteria!");
 //            }
-
-            $planData = $plan->getReportData($reportPeriodId);
 
             return response()->json($planData);
         } catch (Exception $ex)

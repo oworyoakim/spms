@@ -10,6 +10,7 @@ use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\DB;
 
 class WorkPlansController extends Controller
 {
@@ -68,7 +69,11 @@ class WorkPlansController extends Controller
             $years = explode('/', $financialYear);
             $deadline = $request->get('planningDeadline');
 
-            WorkPlan::query()->create([
+            DB::beginTransaction();
+            /**
+             * @var WorkPlan $workPlan
+             */
+            $workPlan = WorkPlan::query()->create([
                 'title' => $request->get('title'),
                 'financial_year' => $financialYear,
                 'start_date' => Carbon::parse("{$years[0]}-07-01"),
@@ -77,12 +82,16 @@ class WorkPlansController extends Controller
                 'plan_id' => $request->get('planId'),
                 'theme' => $request->get('theme'),
                 'description' => $request->get('description'),
+                'frequency' => $request->get('frequency') ?: WorkPlan::$FREQUENCY_QUARTERLY,
                 'created_by' => $request->get('userId'),
             ]);
 
+            $workPlan->createReportPeriods();
+            DB::commit();
             return response()->json("Work plan created!");
         } catch (Exception $ex)
         {
+            DB::rollBack();
             return response()->json($ex->getMessage(), Response::HTTP_FORBIDDEN);
         }
     }
@@ -98,11 +107,15 @@ class WorkPlansController extends Controller
             ];
             $this->validateData($request->all(), $rules);
             $id = $request->get('id');
+            /**
+             * @var WorkPlan $workPlan
+             */
             $workPlan = WorkPlan::query()->find($id);
             if (!$workPlan)
             {
                 throw new Exception("Work plan with id {$id} not found!");
             }
+            DB::beginTransaction();
             $deadline = $request->get('planningDeadline');
             if ($deadline && $deadline != $workPlan->planning_deadline)
             {
@@ -115,9 +128,14 @@ class WorkPlansController extends Controller
             $workPlan->description = $request->get('description');
             $workPlan->updated_by = $request->get('userId');
             $workPlan->save();
+            if(!$workPlan->reportPeriods()->count()){
+                $workPlan->createReportPeriods();
+            }
+            DB::commit();
             return response()->json("Work plan updated!");
         } catch (Exception $ex)
         {
+            DB::rollBack();
             return response()->json($ex->getMessage(), Response::HTTP_FORBIDDEN);
         }
     }
