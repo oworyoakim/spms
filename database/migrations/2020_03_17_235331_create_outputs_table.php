@@ -17,6 +17,7 @@ class CreateOutputsTable extends Migration
             $table->id();
             $table->unsignedBigInteger('objective_id')->nullable();
             $table->unsignedBigInteger('intervention_id')->nullable();
+            $table->unsignedBigInteger('activity_id')->nullable();
             $table->string('name');
             $table->text('description')->nullable();
             $table->unsignedBigInteger('created_by')->nullable();

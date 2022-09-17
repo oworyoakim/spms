@@ -18,6 +18,7 @@ class CreateObjectivesTable extends Migration
             $table->string('name');
             $table->text('description')->nullable();
             $table->unsignedBigInteger('plan_id');
+            $table->unsignedBigInteger('key_result_area_id')->nullable();
             $table->unsignedTinyInteger('rank');
             $table->unsignedBigInteger('created_by')->nullable();
             $table->unsignedBigInteger('updated_by')->nullable();

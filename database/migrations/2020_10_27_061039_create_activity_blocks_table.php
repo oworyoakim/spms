@@ -20,6 +20,8 @@ class CreateActivityBlocksTable extends Migration
             $table->unsignedBigInteger('objective_id');
             $table->unsignedBigInteger('work_plan_id');
             $table->unsignedBigInteger('outcome_id');
+            $table->unsignedBigInteger('output_id')->index()->nullable();
+            $table->unsignedBigInteger('output_indicator_id')->index()->nullable();
             $table->enum('quarter', ['Q1','Q2','Q3','Q4']);
             $table->string('code')->unique();
             $table->float('cost', 13,2)->default(0);

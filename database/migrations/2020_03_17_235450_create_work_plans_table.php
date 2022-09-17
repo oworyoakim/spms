@@ -20,6 +20,8 @@ class CreateWorkPlansTable extends Migration
             $table->string('financial_year');
             $table->date('start_date')->nullable();
             $table->date('end_date')->nullable();
+            $table->enum('frequency', ['monthly','quarterly','4-months'])->default('quarterly');
+            $table->date('planning_deadline')->nullable();
             $table->string('theme')->nullable();
             $table->text('description')->nullable();
             $table->enum('status',['submitted','declined','approved','ongoing','onhold','completed'])->default('submitted')->index();
